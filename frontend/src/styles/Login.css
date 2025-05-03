@@ -1,0 +1,85 @@
+.heading-h1 {
+    font-size: 4rem;
+    font-weight: 650;
+    color: #44210a;
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.subheading {
+    margin: 7px;
+    padding: 20px;
+    color: #468C98;
+    text-align: center;
+    width: 500px;
+}
+
+.MuiButton-root.button-submit {
+    background-color:#44210a;
+    text-transform: none;
+    color: white;
+    font-size: 20px;
+    font-weight: 50;
+    text-align: center;
+    border-radius: 50px;
+    margin: 20px;
+    height: 50px;
+}
+
+.MuiButton-root.button-submit:hover {
+    background-color: #8c4618;
+    /* color: #44210a; */
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+    transition: transform 0.5s ease-in-out;
+}
+
+.fgt-pwd {
+    padding: 20px;
+    display: flex;
+    justify-content: end;
+    color: #44210a;
+    text-decoration: none;
+}
+
+.separator {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    color: #8c4618;
+    padding: 25px;
+}
+  
+.separator::before,
+.separator::after {
+    content: "";
+    flex: 1;
+    border-bottom: 1px solid #8c4618;
+}
+  
+.separator::before {
+margin-right: 10px;
+}
+
+.separator::after {
+margin-left: 10px;
+}
+
+.other-options {
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+}
+
+.register {
+    display: flex;
+    justify-content: center;
+    color: #44210a;
+    padding: 20px;
+}
+
+.register-now {
+    text-decoration: none;
+    font-weight: bold;
+    margin-left: 4px;
+    color: #468C98;
+}
