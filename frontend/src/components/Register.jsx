@@ -16,7 +16,7 @@ import GoogleIcon from '@mui/icons-material/Google';
 //CSS
 import '../styles/Login.css';
 
-const Login = () => {
+const Register = () => {
     
     const inputLabelStyle = { 
         color: '#44210a',
@@ -70,7 +70,7 @@ const Login = () => {
     return (
         <div style={{ display: 'flex', flexDirection: 'row', height: '100vh' }}>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-                <h1 className="heading-h1">Welcome Back!</h1>
+                <h1 className="heading-h1">Register Now!</h1>
                 <div className='subheading'>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</div>
 
                 <FormControl sx={formControlStyle}>
@@ -128,15 +128,45 @@ const Login = () => {
                             />
                             </div>
                         </FormControl>
+
+                        <FormControl sx={formControlStyle} variant="outlined" required>
+                            <div>
+                            <TextField
+                                required
+                                id="outlined-password"
+                                label="Confirm Password"
+                                type={showPassword ? 'text' : 'password'}
+                                name="password"
+                                value={formData.password}
+                                onChange={handleInputChange}
+                                className="input-field"
+                                sx={inputLabelStyle}
+                                slotProps={{
+                                    input: {
+                                        endAdornment: (
+                                        <InputAdornment position="end">
+                                            <IconButton
+                                            aria-label={showPassword ? 'hide the password' : 'display the password'}
+                                            onClick={handleClickShowPassword}
+                                            onMouseDown={handleMouseDownPassword}
+                                            onMouseUp={handleMouseUpPassword}
+                                            edge="end"
+                                            >
+                                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                                            </IconButton>
+                                        </InputAdornment>
+                                        ),
+                                    },
+                                }}
+                            />
+                            </div>
+                        </FormControl>
                     </Box>
-                    <a className='fgt-pwd' href='\forgot-password'>
-                        Forgot Password?
-                    </a>
                     <Button
                         variant="outlined"
                         className="button-submit"
                         onClick={handleSubmit}>
-                        Sign In
+                        Register
                     </Button>
                     <div class="separator">
                         <span>or continue with</span>
@@ -155,8 +185,8 @@ const Login = () => {
                         </IconButton>
                     </div>
                     <div className='register'>
-                        Not a Member?  
-                        <a className='register-now' href='/register'>Register Now</a>
+                        Already a Member?  
+                        <a className='register-now' href='/'>Login</a>
                     </div>
                 </FormControl>
             </div>
@@ -173,4 +203,4 @@ const Login = () => {
     );
 };
 
-export default Login;
+export default Register;
