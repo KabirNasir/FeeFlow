@@ -31,9 +31,6 @@ const UserSchema = new mongoose.Schema({
     enum: ['teacher', 'admin'],
     default: 'teacher'
   },
-  profileImage: {
-    type: String
-  },
   resetPasswordToken: String,
   resetPasswordExpire: Date
 }, {

@@ -13,18 +13,13 @@ const StudentSchema = new mongoose.Schema({
       'Please provide a valid email'
     ]
   },
+  createdBy: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: 'User',
+  required: [true, 'Please specify the teacher who created this student']
+  },
   phone: {
     type: String
-  },
-  address: {
-    type: String
-  },
-  dateOfBirth: {
-    type: Date
-  },
-  gender: {
-    type: String,
-    enum: ['male', 'female', 'other']
   },
   parentInfo: {
     name: {
@@ -48,9 +43,6 @@ const StudentSchema = new mongoose.Schema({
       enum: ['email', 'phone'],
       default: 'email'
     }
-  },
-  notes: {
-    type: String
   },
   active: {
     type: Boolean,

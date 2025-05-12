@@ -27,14 +27,6 @@ const ClassSchema = new mongoose.Schema({
       type: [String],
       enum: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
       required: [true, 'Please specify class days']
-    },
-    startTime: {
-      type: String,
-      required: [true, 'Please specify start time']
-    },
-    endTime: {
-      type: String,
-      required: [true, 'Please specify end time']
     }
   },
   fees: {
@@ -44,7 +36,7 @@ const ClassSchema = new mongoose.Schema({
     },
     currency: {
       type: String,
-      default: 'USD'
+      default: 'INR'
     },
     frequency: {
       type: String,
