@@ -3,7 +3,7 @@
 const Class = require('../models/Class');
 const Student = require('../models/Student');
 const Enrollment = require('../models/Enrollment');
-
+const FeeRecord = require('../models/FeeRecord'); 
 // @desc    Create a new class
 // @route   POST /api/classes
 // @access  Private
@@ -151,5 +151,171 @@ exports.unenrollStudentFromClass = async (req, res) => {
     } catch (error) {
         console.error('Unenroll error:', error.message);
         res.status(500).json({ success: false, message: 'Failed to unenroll student' });
+    }
+};
+
+// exports.generateFees = async (req, res) => {
+//     const { classId } = req.params;
+
+//     try {
+//         // find all *active* enrollments in this class
+//         const enrollments = await Enrollment.find({
+//             class: classId,
+//             status: 'active'
+//         }).populate('class');
+
+//         const now = new Date();
+//         const month = now.getMonth() + 1;
+//         const year = now.getFullYear();
+
+//         const newRecords = [];
+
+//         // helper to decide for quarterly/yearly
+//         const shouldGenerate = (freq, m) => {
+//             if (freq === 'monthly') return true;
+//             if (freq === 'quarterly') return [1, 4, 7, 10].includes(m);
+//             if (freq === 'yearly') return m === 1;
+//             return false;
+//         };
+
+//         for (let enr of enrollments) {
+//             // skip if already generated
+//             const exists = await FeeRecord.findOne({
+//                 enrollment: enr._id,
+//                 'period.month': month,
+//                 'period.year': year
+//             });
+//             if (exists) continue;
+
+//             // only generate if frequency matches
+//             if (!shouldGenerate(enr.class.fees.frequency, month)) continue;
+
+//             const dueDay = enr.class.fees.dueDay || 1;
+//             const dueDate = new Date(year, month - 1, dueDay);
+
+//             const record = await FeeRecord.create({
+//                 enrollment: enr._id,
+//                 amount: enr.class.fees.amount,
+//                 currency: enr.class.fees.currency,
+//                 dueDate,
+//                 period: { month, year }
+//             });
+
+//             newRecords.push(record);
+//         }
+
+//         res.status(201).json({
+//             success: true,
+//             count: newRecords.length,
+//             data: newRecords
+//         });
+//     } catch (err) {
+//         console.error('Generate fees error:', err);
+//         res.status(500).json({ success: false, message: 'Failed to generate fees' });
+//     }
+// };
+
+
+// backend/controllers/classController.js
+
+exports.generateFees = async (req, res) => {
+    const { classId } = req.params;
+
+    try {
+        const now = new Date();
+        const month = now.getMonth() + 1;
+        const year = now.getFullYear();
+
+        // only look at active enrollments for this class
+        const enrollments = await Enrollment.find({
+            class: classId,
+            status: 'active'
+        }).populate('class');
+
+        const newFees = [];
+
+        // should we generate this month?
+        const shouldGenerate = (frequency, m) => {
+            if (frequency === 'monthly') return true;
+            if (frequency === 'quarterly') return [1, 4, 7, 10].includes(m);
+            if (frequency === 'yearly') return m === 1;
+            return false;
+        };
+
+        for (const enr of enrollments) {
+            const classFrequency = enr.class.fees.frequency || 'monthly';
+
+            // skip if this class isn’t due this month
+            if (!shouldGenerate(classFrequency, month)) continue;
+
+            // skip if already generated
+            const exists = await FeeRecord.findOne({
+                enrollment: enr._id,
+                'period.month': month,
+                'period.year': year
+            });
+            if (exists) continue;
+
+            const dueDay = enr.class.fees.dueDay || 1;
+            const dueDate = new Date(year, month - 1, dueDay);
+
+            const record = await FeeRecord.create({
+                enrollment: enr._id,
+                amount: enr.class.fees.amount,
+                currency: enr.class.fees.currency,
+                dueDate,
+                period: { month, year }
+            });
+
+            newFees.push(record);
+        }
+
+        return res.status(201).json({
+            success: true,
+            count: newFees.length,
+            data: newFees
+        });
+    } catch (error) {
+        console.error('Generate fees error:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Failed to generate fee records'
+        });
+    }
+};
+
+
+/**
+ * @desc    List all fee records for a given class
+ * @route   GET /api/classes/:classId/fees
+ * @access  Private
+ */
+exports.getFeesForClass = async (req, res) => {
+    const { classId } = req.params;
+
+    try {
+        // 1) find all enrollment IDs for this class
+        const enrollments = await Enrollment.find({ class: classId }).select('_id');
+        const enrollmentIds = enrollments.map(e => e._id);
+
+        // 2) fetch all FeeRecords whose enrollment is in that list
+        const fees = await FeeRecord
+            .find({ enrollment: { $in: enrollmentIds } })
+            .populate({
+                path: 'enrollment',
+                populate: { path: 'student', select: 'name' }
+            });
+
+        return res.status(200).json({
+            success: true,
+            count: fees.length,
+            data: fees
+        });
+    } catch (err) {
+        console.error('Get fees error:', err);
+        return res.status(500).json({
+            success: false,
+            message: 'Failed to fetch fee records'
+        });
     }
 };
