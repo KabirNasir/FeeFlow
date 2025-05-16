@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState , useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 
@@ -17,10 +17,11 @@ import GoogleIcon from '@mui/icons-material/Google';
 
 // Styles
 import '../styles/Login.css';
+import { AuthContext } from '../contexts/AuthContext';
 
 const Login = () => {
   const navigate = useNavigate();
-
+  const { login } = useContext(AuthContext);
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -61,7 +62,8 @@ const Login = () => {
 
       // Save token and redirect
       localStorage.setItem('token', res.data.token);
-      navigate('/'); // your dashboard route
+      login(res.data.token); 
+      navigate('/dashboard'); // your dashboard route
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed');
     }

@@ -1,42 +1,37 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route , Navigate } from 'react-router-dom';
 // import logo from './logo.svg';
 import './App.css';
 
 //Importing Components
-import Login from './components/Login';
-import Register from './components/Register'
-
-// function App() {
-//   return (
-//     <div className="App">
-//       <header className="App-header">
-//         <img src={logo} className="App-logo" alt="logo" />
-//         <p>
-//           Edit <code>src/App.js</code> and save to reload.
-//         </p>
-//         <a
-//           className="App-link"
-//           href="https://reactjs.org"
-//           target="_blank"
-//           rel="noopener noreferrer"
-//         >
-//           Learn React
-//         </a>
-//       </header>
-//     </div>
-//   );
-// }
+import Login from './pages/Login';
+import Register from './pages/Register'
+import ProtectedRoute from './components/ProtectedRoute';
+import { AuthProvider } from './contexts/AuthContext';
+import Dashboard from './pages/Dashboard';
 
 function App() {
   return (
-      <>
-        <Routes>
-          <Route path="/" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          {/* <Route path="/dashboard" element={<div></div>} /> */}
-        </Routes>
-      </>
+    <AuthProvider>
+      <Routes>
+        {/* Public routes */}
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+
+        {/* All routes below are protected */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          
+          {/* 
+            Later you can add more protected routes here, e.g.:
+            <Route path="/classes/new" element={<CreateClass />} />
+            <Route path="/classes/:classId" element={<ClassDetail />} />
+          */}
+        </Route>
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    </AuthProvider>
   );
 }
 
