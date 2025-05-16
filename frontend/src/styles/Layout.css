@@ -1,0 +1,49 @@
+/* src/styles/Layout.css */
+
+.appbar {
+  background-color: #44210a;
+  
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.app-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+/* Page headings */
+.page-heading {
+  font-size: 2.5rem;
+  font-weight: 650;
+  color: #44210a;
+  margin-bottom: 1rem;
+}
+
+/* Sub‐headings */
+.page-subheading {
+  font-size: 1.1rem;
+  color: #468C98;
+  margin-bottom: 2rem;
+}
+
+/* Primary button to match login/register */
+.button-primary {
+  background-color: #44210a !important;
+  color: white !important;
+  text-transform: none !important;
+  font-size: 1rem !important;
+  border-radius: 50px !important;
+}
+.button-primary:hover {
+  background-color: #8c4618 !important;
+}
+
+/* Utility for spacing under sections */
+.section-gap {
+  margin-bottom: 2rem;
+}
