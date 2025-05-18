@@ -8,7 +8,8 @@ const {
   getStudentsInClass,
   unenrollStudentFromClass,
   generateFees,
-  getFeesForClass
+  getFeesForClass,
+  getClassById
 } = require('../controllers/classController');
 
 const { protect } = require('../middlewares/auth');
@@ -35,5 +36,8 @@ router.put('/:classId/unenroll', unenrollStudentFromClass);
 router.post('/:classId/generate-fees', generateFees);
 
 router.get('/:classId/fees', getFeesForClass);
+
++ router.get('/:classId', getClassById);
+
 
 module.exports = router;

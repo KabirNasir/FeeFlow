@@ -147,7 +147,7 @@ const Register = () => {
             <GoogleIcon sx={{
               color: 'white',
               scale: 2,
-              bgcolor: '#44210a',
+              bgcolor: '#4caf50',
               borderRadius: '50%'
             }} />
           </IconButton>

@@ -319,3 +319,23 @@ exports.getFeesForClass = async (req, res) => {
         });
     }
 };
+
+// @desc    Get a single class’s details (for breadcrumbs, etc.)
+// @route   GET /api/classes/:classId
+// @access  Private
+exports.getClassById = async (req, res) => {
+    try {
+        const cls = await Class.findById(req.params.classId);
+        if (!cls) {
+            return res
+                .status(404)
+                .json({ success: false, message: 'Class not found' });
+        }
+        res.status(200).json({ success: true, data: cls });
+    } catch (error) {
+        console.error('Get class by ID error:', error.message);
+        res
+            .status(500)
+            .json({ success: false, message: 'Failed to fetch class details' });
+    }
+};

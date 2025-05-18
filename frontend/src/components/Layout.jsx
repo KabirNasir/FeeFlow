@@ -1,60 +1,138 @@
 // src/components/Layout.jsx
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthContext';
 
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
-import IconButton from '@mui/material/IconButton';
-import Box from '@mui/material/Box';
+import {
+  Box,
+  CssBaseline,
+  AppBar,
+  Toolbar,
+  Typography,
+  IconButton,
+  Drawer,
+  List,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Divider,
+  useTheme,
+  useMediaQuery
+} from '@mui/material';
 
-import HomeIcon from '@mui/icons-material/Home';       // ← new
+import HomeIcon from '@mui/icons-material/Home';
+import ClassIcon from '@mui/icons-material/Class';
+import GroupIcon from '@mui/icons-material/Group';
+import AddIcon from '@mui/icons-material/Add';
 import LogoutIcon from '@mui/icons-material/Logout';
-import '../styles/Layout.css';
+import MenuIcon from '@mui/icons-material/Menu';
+
+const drawerWidth = 240;
+
+const navItems = [
+  { text: 'Dashboard', icon: <HomeIcon />, path: '/dashboard' },
+  { text: 'Your Classes', icon: <ClassIcon />, path: '/dashboard' }, // same as dashboard
+  { text: 'All Students', icon: <GroupIcon />, path: '/students' },
+];
+
+const quickActions = [
+  { text: 'New Class', icon: <AddIcon />, path: '/classes/new' },
+  { text: 'New Student', icon: <AddIcon />, path: '/students/new' },
+];
 
 const Layout = () => {
   const { logout } = useContext(AuthContext);
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const [mobileOpen, setMobileOpen] = useState(false);
 
+  const handleDrawerToggle = () => {
+    setMobileOpen(open => !open);
+  };
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
 
-  const goHome = () => {
-    navigate('/dashboard');                         // ← new
-  };
+  const drawer = (
+    <Box sx={{ width: drawerWidth }}>
+      <Toolbar>
+        <Typography variant="h6" noWrap>
+          FeeFlow
+        </Typography>
+      </Toolbar>
+      <Divider />
+
+      <List>
+        {navItems.map(({ text, icon, path }) => (
+          <ListItemButton key={text} onClick={() => navigate(path)}>
+            <ListItemIcon>{icon}</ListItemIcon>
+            <ListItemText primary={text} />
+          </ListItemButton>
+        ))}
+      </List>
+
+      <Divider />
+
+      <List subheader={
+        <Typography variant="subtitle2" sx={{ pl: 2, pt: 1 }}>Quick Actions</Typography>
+      }>
+        {quickActions.map(({ text, icon, path }) => (
+          <ListItemButton key={text} onClick={() => navigate(path)}>
+            <ListItemIcon>{icon}</ListItemIcon>
+            <ListItemText primary={text} />
+          </ListItemButton>
+        ))}
+      </List>
+      <Divider />
+
+      <List>
+        <ListItemButton onClick={handleLogout}>
+          <ListItemIcon><LogoutIcon sx={{ color: '#fff' }} /></ListItemIcon>
+          <ListItemText primary="Logout" primaryTypographyProps={{ color: '#fff' }} />
+        </ListItemButton>
+      </List>
+    </Box>
+  );
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      <AppBar position="static" sx={{ bgcolor: '#44210a' }} className="appbar">
-        <Toolbar className="toolbar">
-          {/* Home button */}
-          <IconButton color="inherit" onClick={goHome} sx={{ mr: 1 }}>
-            <HomeIcon />
-          </IconButton>
+    <Box sx={{ display: 'flex' }}>
+      <CssBaseline />
+      {/* Permanent drawer on desktop, swipeable on mobile */}
+      <Box
+        component="nav"
+        sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
+      >
+        <Drawer
+          variant={isMobile ? 'temporary' : 'permanent'}
+          open={isMobile ? mobileOpen : true}
+          onClose={handleDrawerToggle}
+          ModalProps={{ keepMounted: true }}
+          sx={{
+            display: { xs: 'block', sm: 'block' },
+            '& .MuiDrawer-paper': {
+              width: drawerWidth,
+              boxSizing: 'border-box',
+               bgcolor: '#2e7d32',  
+              color: '#fff'         
+            }
+          }}
+        >
+          {drawer}
+        </Drawer>
+      </Box>
 
-          {/* App title (now clickable) */}
-          <Typography
-            variant="h6"
-            className="app-title"
-            onClick={goHome}                        // ← new
-            sx={{ cursor: 'pointer' }}             // ← new
-          >
-            FeeFlow
-          </Typography>
-
-          <Box sx={{ flexGrow: 1 }} />
-
-          <IconButton color="inherit" onClick={handleLogout}>
-            <LogoutIcon />
-          </IconButton>
-        </Toolbar>
-      </AppBar>
-
-      {/* main content */}
-      <Box component="main" sx={{ flexGrow: 1 }}>
+      {/* Main content */}
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          p: 3,
+          width: { sm: `calc(100% - ${drawerWidth}px)` },
+          // ml: { sm: `${drawerWidth}px` }
+        }}
+      >
         <Outlet />
       </Box>
     </Box>
@@ -62,48 +140,3 @@ const Layout = () => {
 };
 
 export default Layout;
-// // src/components/Layout.jsx
-// import React, { useContext } from 'react';
-// import { Outlet, useNavigate } from 'react-router-dom';
-// import { AuthContext } from '../contexts/AuthContext';
-
-// import AppBar from '@mui/material/AppBar';
-// import Toolbar from '@mui/material/Toolbar';
-// import Typography from '@mui/material/Typography';
-// import IconButton from '@mui/material/IconButton';
-// import LogoutIcon from '@mui/icons-material/Logout';
-// import Box from '@mui/material/Box';
-
-// import '../styles/Layout.css';
-
-// const Layout = () => {
-//   const { logout } = useContext(AuthContext);
-//   const navigate = useNavigate();
-
-//   const handleLogout = () => {
-//     logout();
-//     navigate('/login');
-//   };
-
-//   return (
-//     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-//       <AppBar position="static"  sx={{ bgcolor: '#44210a' }} className="appbar">
-//         <Toolbar className="toolbar">
-//           <Typography variant="h6" className="app-title">
-//             FeeFlow
-//           </Typography>
-//           <IconButton color="inherit" onClick={handleLogout}>
-//             <LogoutIcon />
-//           </IconButton>
-//         </Toolbar>
-//       </AppBar>
-
-//       {/* main content */}
-//       <Box component="main" sx={{ flexGrow: 1 }}>
-//         <Outlet />
-//       </Box>
-//     </Box>
-//   );
-// };
-
-// export default Layout;

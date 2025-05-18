@@ -33,7 +33,10 @@ import {
   TextField
 } from '@mui/material';
 import PaymentIcon from '@mui/icons-material/Payment';
-
+import Breadcrumbs from '@mui/material/Breadcrumbs';
+import Link from '@mui/material/Link';
+import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import { Link as RouterLink } from 'react-router-dom';
 function TabPanel({ children, value, index }) {
   return value === index && (
     <Box sx={{ p: 2 }}>
@@ -49,6 +52,9 @@ const ClassDetail = () => {
 
   const [tab, setTab] = useState(0);
 
+
+  // ─── NEW: store the class’s name/details for breadcrumbs ────────────────
+  const [classInfo, setClassInfo] = useState(null);
   // --- Students tab state ---
   const [students, setStudents] = useState([]);
   const [loadingStudents, setLoadingStudents] = useState(true);
@@ -68,6 +74,14 @@ const ClassDetail = () => {
   useEffect(() => {
     (async () => {
       try {
+        // const res = await api.get(`/classes/${classId}/students`);
+        // setStudents(res.data.data);
+
+        // ─── NEW: fetch the class itself ───────────────────────────────
+        const classRes = await api.get(`/classes/${classId}`);
+        setClassInfo(classRes.data.data);
+
+        // then fetch students as before
         const res = await api.get(`/classes/${classId}/students`);
         setStudents(res.data.data);
       } catch (err) {
@@ -143,6 +157,25 @@ const ClassDetail = () => {
 
   return (
     <Box sx={{ p: 3 }}>
+
+      {/* ─── NEW: show “Dashboard > Your Classes > This Class” ───────────── */}
+      {classInfo && (
+        <Breadcrumbs
+          separator={<NavigateNextIcon fontSize="small" />}
+          sx={{ mb: 2 }}
+        >
+          <Link component={RouterLink} to="/dashboard">
+            Dashboard
+          </Link>
+          <Link component={RouterLink} to="/dashboard">
+            Your Classes
+          </Link>
+          <Typography color="text.primary">
+            {classInfo.name}
+          </Typography>
+        </Breadcrumbs>
+      )
+      }
       <Typography className="page-heading">Class Detail</Typography>
 
       <Tabs value={tab} onChange={(e, v) => setTab(v)} sx={{ mb: 2 }}>
