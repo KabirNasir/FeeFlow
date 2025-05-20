@@ -6,10 +6,8 @@ import { AuthContext } from '../contexts/AuthContext';
 import {
   Box,
   CssBaseline,
-  AppBar,
   Toolbar,
   Typography,
-  IconButton,
   Drawer,
   List,
   ListItemButton,
@@ -25,7 +23,6 @@ import ClassIcon from '@mui/icons-material/Class';
 import GroupIcon from '@mui/icons-material/Group';
 import AddIcon from '@mui/icons-material/Add';
 import LogoutIcon from '@mui/icons-material/Logout';
-import MenuIcon from '@mui/icons-material/Menu';
 
 const drawerWidth = 240;
 
@@ -114,7 +111,7 @@ const Layout = () => {
             '& .MuiDrawer-paper': {
               width: drawerWidth,
               boxSizing: 'border-box',
-               bgcolor: '#2e7d32',  
+              bgcolor: '#053827ff',  
               color: '#fff'         
             }
           }}

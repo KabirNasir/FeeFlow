@@ -1,7 +1,15 @@
 /* src/styles/Layout.css */
 
+:root {
+  /* --primary-color: #4caf50; */
+  --darkgreen: #053827ff;
+  --asparagus: #6a994eff;
+  --sunglow: #fccd56ff;
+  --black: #000000ff;
+}
+
 .appbar {
-  background-color: #4caf50 !important;
+  background-color: var(--darkgreen) !important;
 }
 
 .toolbar {
@@ -13,6 +21,35 @@
 .app-title {
   font-size: 1.5rem;
   font-weight: 600;
+}
+
+.MuiList-root.MuiList-padding.MuiList-subheader {
+  padding: 10px !important;
+  background-color: var(--darkgreen) !important;
+  border-radius: 50px !important;
+  transition: background-color 0.3s ease-in-out;
+  margin: 7px;
+  gap: 10px;
+}
+
+.MuiList-root.MuiList-padding.css-b7dj7n-MuiList-root {
+  padding: 10px !important;
+  background-color: var(--darkgreen) !important;
+  border-radius: 50px !important;
+  transition: background-color 0.3s ease-in-out;
+  margin: 7px;
+  gap: 10px;
+}
+
+.MuiButtonBase-root.MuiListItemButton-root:hover{
+  background-color: var(--asparagus) !important;
+  border-radius: 10px !important;
+  transition: background-color 0.3s ease-in-out;
+}
+
+.MuiSvgIcon-root.MuiSvgIcon-fontSizeMedium.css-1umw9bq-MuiSvgIcon-root {
+  color: white;
+  transition: color 0.3s ease-in-out;
 }
 
 /* Page headings */
@@ -32,14 +69,17 @@
 
 /* Primary button to match login/register */
 .button-primary {
-  background-color: #4caf50 !important;
+  background-color: var(--darkgreen) !important;
   color: white !important;
   text-transform: none !important;
   font-size: 1rem !important;
-  border-radius: 50px !important;
+  border-radius: 10px !important;
+  padding: 15px !important
 }
 .button-primary:hover {
-  background-color: #8c4618 !important;
+  background-color: var(--asparagus) !important;
+  transform: scale(1.1);
+  transition: transform 0.2s ease-in-out;
 }
 
 /* Utility for spacing under sections */
