@@ -15,6 +15,7 @@ import {
 } from '@mui/material';
 
 import '../styles/Layout.css';  // for .page-heading, .button-primary, etc.
+import '../styles/Dashboard.css'
 
 const Dashboard = () => {
   const [classes, setClasses] = useState([]);
