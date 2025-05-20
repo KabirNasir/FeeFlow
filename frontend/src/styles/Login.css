@@ -1,7 +1,15 @@
+:root {
+    /* --primary-color: #4caf50; */
+    --darkgreen: #053827ff;
+    --asparagus: #6a994eff;
+    --sunglow: #fccd56ff;
+    --black: #000000ff;
+    }
+
 .heading-h1 {
     font-size: 4rem;
     font-weight: 650;
-    color: #4caf50;
+    color: var(--darkgreen);
     text-align: center;
     margin-bottom: 1.5rem;
 }
@@ -9,13 +17,13 @@
 .subheading {
     margin: 7px;
     padding: 20px;
-    color: #468C98;
+    color: var(--asparagus);
     text-align: center;
     width: 500px;
 }
 
 .MuiButton-root.button-submit {
-    background-color:#4caf50;
+    background-color: var(--darkgreen);
     text-transform: none;
     color: white;
     font-size: 20px;
@@ -24,10 +32,11 @@
     border-radius: 50px;
     margin: 20px;
     height: 50px;
+    left: 165px;
 }
 
 .MuiButton-root.button-submit:hover {
-    background-color: #8c4618;
+    background-color: var(--asparagus);;
     /* color: #44210a; */
     box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
     transition: transform 0.5s ease-in-out;
@@ -37,7 +46,7 @@
     padding: 20px;
     display: flex;
     justify-content: end;
-    color: #44210a;
+    color: var(--asparagus);
     text-decoration: none;
 }
 
@@ -45,7 +54,7 @@
     display: flex;
     align-items: center;
     text-align: center;
-    color: #4caf50;
+    color: var(--darkgreen);;
     padding: 25px;
 }
   
@@ -53,7 +62,7 @@
 .separator::after {
     content: "";
     flex: 1;
-    border-bottom: 1px solid #8c4618;
+    border-bottom: 1px solid var(--darkgreen);
 }
   
 .separator::before {
@@ -70,10 +79,14 @@ margin-left: 10px;
     padding: 20px;
 }
 
+.other-options:hover {
+    background-color: #000000ff;
+}
+
 .register {
     display: flex;
     justify-content: center;
-    color: #4caf50;
+    color: var(--darkgreen);
     padding: 20px;
 }
 
@@ -81,5 +94,5 @@ margin-left: 10px;
     text-decoration: none;
     font-weight: bold;
     margin-left: 4px;
-    color: #468C98;
+    color: var(--asparagus);
 }

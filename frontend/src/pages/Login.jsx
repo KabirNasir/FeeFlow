@@ -124,7 +124,7 @@ const Login = () => {
           </Box>
 
           <div className="separator"><span>or continue with</span></div>
-          <IconButton href='https://www.gmail.com'>
+          <IconButton className="other-options" href='https://www.gmail.com'>
             <GoogleIcon sx={{
               color: 'white',
               scale: 2,
