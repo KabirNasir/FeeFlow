@@ -18,7 +18,7 @@ import {
   useMediaQuery
 } from '@mui/material';
 
-import HomeIcon from '@mui/icons-material/Home';
+import DashboardIcon from '@mui/icons-material/Dashboard';
 import ClassIcon from '@mui/icons-material/Class';
 import GroupIcon from '@mui/icons-material/Group';
 import AddIcon from '@mui/icons-material/Add';
@@ -27,7 +27,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 const drawerWidth = 240;
 
 const navItems = [
-  { text: 'Dashboard', icon: <HomeIcon />, path: '/dashboard' },
+  { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
   { text: 'Your Classes', icon: <ClassIcon />, path: '/dashboard' }, // same as dashboard
   { text: 'All Students', icon: <GroupIcon />, path: '/students' },
 ];
