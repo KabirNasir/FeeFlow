@@ -8,11 +8,14 @@ import {
   Card,
   CardContent,
   CardActions,
-  Button,
+  // Button,
   CircularProgress,
   Box,
   Typography
 } from '@mui/material';
+
+import Button from '@mui/joy/Button';
+import Add from '@mui/icons-material/Add';
 
 import '../styles/Layout.css';  // for .page-heading, .button-primary, etc.
 import '../styles/Dashboard.css'
@@ -65,7 +68,7 @@ const Dashboard = () => {
           mb: 3
         }}
       >
-        <Typography className="page-heading">Your Classes</Typography>
+        <Typography className="page-heading" variant="h4" >Your Classes</Typography>
         <Box sx={{ display: 'flex', gap: 2 }}>
           <Button
             className="button-primary"
@@ -84,7 +87,7 @@ const Dashboard = () => {
             className="button-primary"
             onClick={() => navigate('/students/new')}
           >
-            Enter Student Details
+            Add New Student
           </Button>
         </Box>
       </Box>
@@ -95,7 +98,7 @@ const Dashboard = () => {
           <Grid item xs={12} sm={6} md={4} key={cls._id}>
             <Card sx={{ borderRadius: 2, boxShadow: 3 }}>
               <CardContent>
-                <Typography variant="h5" gutterBottom>
+                <Typography variant="h6" gutterBottom>
                   {cls.name}
                 </Typography>
                 <Typography color="text.secondary">
@@ -103,7 +106,20 @@ const Dashboard = () => {
                 </Typography>
               </CardContent>
               <CardActions>
-                <Button size="small" onClick={() => navigate(`/classes/${cls._id}`)}>
+                <Button 
+                  sx={{ 
+                    backgroundColor: 'var(--asparagus)',
+                    color: 'white',
+                    '&:hover': {
+                      backgroundColor: 'var(--sunglow)',
+                      boxShadow: 4,
+                      transition: 'backgroundColor 0.3s ease-in -out'
+                    }
+                  }} 
+                  size="small" 
+                  variant="soft" 
+                  onClick={() => navigate(`/classes/${cls._id}`)} 
+                  startDecorator={<Add />}>
                   View
                 </Button>
               </CardActions>

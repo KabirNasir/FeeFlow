@@ -6,3 +6,8 @@
     --black: #000000ff;
 }
 
+.view-button {
+    background-color: var(--darkgreen);
+    color: white;
+    transition: background-color 0.3s ease-in-out;
+}

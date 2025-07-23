@@ -85,25 +85,25 @@ const StudentList = () => {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Typography className="page-heading">All Students</Typography>
+      <Typography variant="h4" className="page-heading">All Students</Typography>
       <Paper>
-        <Table>
+        <Table className='student-table' sx={{ marginTop: '2rem' }}>
           <TableHead>
             <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell>Parent</TableCell>
-              <TableCell align="right">Actions</TableCell>
+              <TableCell className='student-table-row-header'>Name</TableCell>
+              <TableCell className='student-table-row-header'>Email</TableCell>
+              <TableCell className='student-table-row-header'>Parent</TableCell>
+              <TableCell className='student-table-row-header' align="right">Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {students.map((stu) => (
               <TableRow key={stu._id}>
-                <TableCell>{stu.name}</TableCell>
-                <TableCell>{stu.email || '—'}</TableCell>
-                <TableCell>{stu.parentInfo.email}</TableCell>
+                <TableCell className='student-table-name'>{stu.name}</TableCell>
+                <TableCell className='student-table-email'>{stu.email || '—'}</TableCell>
+                <TableCell className='student-table-parent-email'>{stu.parentInfo.email}</TableCell>
                 <TableCell align="right">
-                  <Button
+                  <Button className='student-table-actions'  
                     size="small"
                     onClick={() => openEnroll(stu._id)}
                   >

@@ -32,9 +32,8 @@
   gap: 10px;
 }
 
-.MuiList-root.MuiList-padding.css-b7dj7n-MuiList-root {
+.MuiList-root.MuiList-padding.css-b7dj7n-MuiList-root{
   padding: 10px !important;
-  background-color: var(--darkgreen) !important;
   border-radius: 50px !important;
   transition: background-color 0.3s ease-in-out;
   margin: 7px;
@@ -54,9 +53,8 @@
 
 /* Page headings */
 .page-heading {
-  font-size: 4.5rem;
   font-weight: 650;
-  color: black;
+  color: var(--darkgreen);
   margin-bottom: 4rem;
 }
 
@@ -85,4 +83,34 @@
 /* Utility for spacing under sections */
 .section-gap {
   margin-bottom: 2rem;
+}
+
+.MuiListItem-root.MuiListItem-gutters.MuiListItem-padding.MuiListItem-divider.css-1wa6ns3-MuiListItem-root:hover {
+  background-color: var(--asparagus) !important;
+  color: white !important;
+}
+
+.student-table-row-header{
+  font-size: 20px !important;
+  color: var(--darkgreen) !important;
+}
+
+.student-table-name{
+  color: var(--asparagus) !important;
+  font-size: 17px !important;
+}
+
+.student-table-email{
+  color: var(--asparagus) !important;
+  font-size: 17px !important;
+}
+
+.student-table-parent-email{
+  color: var(--asparagus) !important;
+  font-size: 17px !important;
+}
+
+.student-table-actions{
+  color: var(--sunglow) !important;
+  font-size: 17px !important;
 }

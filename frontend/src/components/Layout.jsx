@@ -19,7 +19,7 @@ import {
 } from '@mui/material';
 
 import DashboardIcon from '@mui/icons-material/Dashboard';
-import ClassIcon from '@mui/icons-material/Class';
+// import ClassIcon from '@mui/icons-material/Class';
 import GroupIcon from '@mui/icons-material/Group';
 import AddIcon from '@mui/icons-material/Add';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -28,7 +28,7 @@ const drawerWidth = 240;
 
 const navItems = [
   { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
-  { text: 'Your Classes', icon: <ClassIcon />, path: '/dashboard' }, // same as dashboard
+  // { text: 'Your Classes', icon: <ClassIcon />, path: '/dashboard' }, // same as dashboard
   { text: 'All Students', icon: <GroupIcon />, path: '/students' },
 ];
 
@@ -72,7 +72,9 @@ const Layout = () => {
 
       <Divider />
 
-      <List subheader={
+      <List 
+      className='quick-actions-list'
+      subheader={
         <Typography variant="subtitle2" sx={{ pl: 2, pt: 1 }}>Quick Actions</Typography>
       }>
         {quickActions.map(({ text, icon, path }) => (

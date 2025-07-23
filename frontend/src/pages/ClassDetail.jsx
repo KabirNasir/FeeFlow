@@ -33,8 +33,8 @@ import {
   TextField
 } from '@mui/material';
 import PaymentIcon from '@mui/icons-material/Payment';
-import Breadcrumbs from '@mui/material/Breadcrumbs';
-import Link from '@mui/material/Link';
+import Breadcrumbs from '@mui/joy/Breadcrumbs';
+import Link from '@mui/joy/Link';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { Link as RouterLink } from 'react-router-dom';
 function TabPanel({ children, value, index }) {
@@ -162,7 +162,7 @@ const ClassDetail = () => {
       {classInfo && (
         <Breadcrumbs
           separator={<NavigateNextIcon fontSize="small" />}
-          sx={{ mb: 2 }}
+          sx={{ mb: 2 , fontUnderline: 'none'}}
         >
           <Link component={RouterLink} to="/dashboard">
             Dashboard
@@ -199,9 +199,9 @@ const ClassDetail = () => {
         {loadingStudents ? (
           <Box sx={{ textAlign: 'center', mt: 4 }}><CircularProgress /></Box>
         ) : (
-          <Paper>
+            <Paper sx={{ backgroundColor: '#f0f7f2', borderRadius: '16px' }}>
             {students.length
-              ? <List>
+              ? <List className='students-list'>
                 {students.map(s => (
                   <ListItem key={s._id} divider>
                     <ListItemText
