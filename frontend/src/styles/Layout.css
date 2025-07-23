@@ -6,6 +6,7 @@
   --asparagus: #6a994eff;
   --sunglow: #fccd56ff;
   --black: #000000ff;
+  --white: #ffffff;
 }
 
 .appbar {
@@ -46,10 +47,10 @@
   transition: background-color 0.3s ease-in-out;
 }
 
-.MuiSvgIcon-root.MuiSvgIcon-fontSizeMedium.css-1umw9bq-MuiSvgIcon-root {
+/* .MuiSvgIcon-root.MuiSvgIcon-fontSizeMedium.css-1umw9bq-MuiSvgIcon-root {
   color: white;
   transition: color 0.3s ease-in-out;
-}
+} */
 
 /* Page headings */
 .page-heading {
@@ -90,7 +91,7 @@
   color: white !important;
 }
 
-.student-table-row-header{
+/* .student-table-row-header{
   font-size: 20px !important;
   color: var(--darkgreen) !important;
 }
@@ -114,3 +115,11 @@
   color: var(--sunglow) !important;
   font-size: 17px !important;
 }
+.student-table-icon-button {
+  color: var(--asparagus) !important;
+}
+
+.student-table-icon-button:hover {
+  color: var(--darkgreen) !important;
+  background-color: rgba(5, 56, 39, 0.1) !important;
+} */

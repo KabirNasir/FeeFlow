@@ -21,10 +21,12 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  CircularProgress
+  CircularProgress,
+  IconButton
 } from '@mui/material';
-
-import '../styles/Layout.css';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import '../styles/StudentList.css';
 
 const StudentList = () => {
   const { logout } = useContext(AuthContext);
@@ -74,7 +76,19 @@ const StudentList = () => {
       console.error(err);
     }
   };
-
+  const handleDelete = async (studentId) => {
+    if (window.confirm('Are you sure you want to delete this student?')) {
+      try {
+        await api.delete(`/students/${studentId}`);
+        setStudents((students) =>
+          students.filter((s) => s._id !== studentId)
+        );
+      } catch (err) {
+        console.error(err);
+        // You might want to show an error message to the user
+      }
+    }
+  };
   if (loading) {
     return (
       <Box sx={{ display: 'flex', height: '60vh', alignItems: 'center', justifyContent: 'center' }}>
@@ -109,6 +123,18 @@ const StudentList = () => {
                   >
                     Enroll
                   </Button>
+                  <IconButton 
+                  className="student-list-icon"
+                  //   sx={{
+                  //     color: 'red',
+                  // }}
+                    onClick={() => navigate(`/students/${stu._id}/edit`)}
+                  >
+                    <EditIcon />
+                  </IconButton>
+                  <IconButton className="student-list-icon" onClick={() => handleDelete(stu._id)}>
+                    <DeleteIcon />
+                  </IconButton>
                 </TableCell>
               </TableRow>
             ))}

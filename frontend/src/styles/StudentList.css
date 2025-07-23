@@ -1,0 +1,34 @@
+/* .MuiSvgIcon-root.MuiSvgIcon-fontSizeMedium.css-1umw9bq-MuiSvgIcon-root{
+    color: var(--asparagus) !important;
+    transition: color 0.3s ease-in-out;
+  } */
+
+.student-list-icon {
+    color: var(--asparagus) !important;
+    transition: color 0.3s ease-in-out;
+}
+
+.student-table-row-header {
+    font-size: 20px !important;
+    color: var(--darkgreen) !important;
+}
+
+.student-table-name {
+    color: var(--asparagus) !important;
+    font-size: 17px !important;
+}
+
+.student-table-email {
+    color: var(--asparagus) !important;
+    font-size: 17px !important;
+}
+
+.student-table-parent-email {
+    color: var(--asparagus) !important;
+    font-size: 17px !important;
+}
+
+.student-table-actions {
+    color: var(--sunglow) !important;
+    font-size: 17px !important;
+}

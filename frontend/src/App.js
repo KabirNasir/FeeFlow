@@ -13,6 +13,7 @@ import CreateClass from './pages/CreateClass';
 import ClassDetail from './pages/ClassDetail';
 import StudentList from './pages/StudentList';
 import CreateStudent from './pages/CreateStudent';
+import EditStudent from './pages/EditStudent'
 
 function App() {
   return (
@@ -36,6 +37,9 @@ function App() {
             <Route path="classes/:classId" element={<ClassDetail />} />
             <Route path="students" element={<StudentList />} />
             <Route path="students/new" element={<CreateStudent />} />
+            <Route path="students" element={<StudentList />} />
+            <Route path="students/new" element={<CreateStudent />} />
+            <Route path="students/:studentId/edit" element={<EditStudent />} />{' '}
           </Route>
         </Route>
 

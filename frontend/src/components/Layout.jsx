@@ -27,14 +27,14 @@ import LogoutIcon from '@mui/icons-material/Logout';
 const drawerWidth = 240;
 
 const navItems = [
-  { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
+  { text: 'Dashboard', icon: <DashboardIcon sx={{ color: 'var(--white)' }} />, path: '/dashboard' },
   // { text: 'Your Classes', icon: <ClassIcon />, path: '/dashboard' }, // same as dashboard
-  { text: 'All Students', icon: <GroupIcon />, path: '/students' },
+  { text: 'All Students', icon: <GroupIcon sx={{ color: 'var(--white)' }} />, path: '/students' },
 ];
 
 const quickActions = [
-  { text: 'New Class', icon: <AddIcon />, path: '/classes/new' },
-  { text: 'New Student', icon: <AddIcon />, path: '/students/new' },
+  { text: 'New Class', icon: <AddIcon sx={{ color: 'var(--white)' }} />, path: '/classes/new' },
+  { text: 'New Student', icon: <AddIcon sx={{ color: 'var(--white)' }} />, path: '/students/new' },
 ];
 
 const Layout = () => {
