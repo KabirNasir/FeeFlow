@@ -17,8 +17,12 @@ import EditStudent from './pages/EditStudent'
 import EditClass from './pages/EditClass';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
+import { GoogleOAuthProvider } from '@react-oauth/google';
+
 function App() {
+  const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
   return (
+    <GoogleOAuthProvider clientId={googleClientId}>
     <AuthProvider>
       <Routes>
         {/* when hitting “/” send to login */}
@@ -52,6 +56,7 @@ function App() {
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </AuthProvider>
+    </GoogleOAuthProvider>
   );
 }
 

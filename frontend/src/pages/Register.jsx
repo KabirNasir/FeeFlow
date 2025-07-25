@@ -1,15 +1,12 @@
-import React, { useState } from 'react';
+// import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
+import { AuthContext } from '../contexts/AuthContext'; 
 
 // MUI Components
-import Box from '@mui/material/Box';
-import FormControl from '@mui/material/FormControl';
-import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
-import InputAdornment from '@mui/material/InputAdornment';
-import IconButton from '@mui/material/IconButton';
-
+import { Box, FormControl, TextField, Button, InputAdornment, IconButton, Divider } from '@mui/material'; // Add Divider
+import { GoogleLogin } from '@react-oauth/google'; // Import GoogleLogin
 // Icons
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
@@ -20,6 +17,7 @@ import '../styles/Login.css';
 
 const Register = () => {
   const navigate = useNavigate();
+  const { login } = useContext(AuthContext); // Get the login function
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -49,7 +47,21 @@ const Register = () => {
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+  const handleGoogleSuccess = async (credentialResponse) => {
+    try {
+      const idToken = credentialResponse.credential;
+      const res = await api.post('/auth/googlesignin', { idToken });
+      login(res.data.token); // Log in the new user
+      navigate('/dashboard');
+    } catch (err) {
+      console.error('Google Sign-Up Failed', err);
+      // You might want a specific error state for this
+    }
+  };
 
+  const handleGoogleError = () => {
+    console.log('Google Sign-Up Failed');
+  };
   const handleRegister = async (e) => {
     e.preventDefault();
 
@@ -80,7 +92,7 @@ const Register = () => {
         </div>
 
         <FormControl sx={formControlStyle}>
-          <Box component="form" onSubmit={handleRegister} noValidate>
+          <Box  component="form" onSubmit={handleRegister} noValidate>
             <TextField
               required
               label="Full Name"
@@ -130,7 +142,7 @@ const Register = () => {
             />
 
             {error && <p style={{ color: 'red' }}>{error}</p>}
-
+              
             <Button
               variant="contained"
               className="button-submit"
@@ -141,16 +153,25 @@ const Register = () => {
             </Button>
           </Box>
 
-          <div className="separator"><span>or continue with</span></div>
+          <Divider sx={{ my: 2 }}>OR</Divider>
 
-          <IconButton href='https://www.gmail.com'>
+          <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={handleGoogleError}
+            />
+          </Box>
+
+          {/* <div className="separator"><span>or continue with</span></div> */}
+
+          {/* <IconButton href='https://www.gmail.com'>
             <GoogleIcon sx={{
               color: 'white',
               scale: 2,
               bgcolor: '#4caf50',
               borderRadius: '50%'
             }} />
-          </IconButton>
+          </IconButton> */}
 
           <div className='register'>
             Already a Member? <a className='register-now' href='/'>Login</a>

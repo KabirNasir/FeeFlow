@@ -18,10 +18,13 @@ import GoogleIcon from '@mui/icons-material/Google';
 // Styles
 import '../styles/Login.css';
 import { AuthContext } from '../contexts/AuthContext';
+import { GoogleLogin } from '@react-oauth/google';
+
 
 const Login = () => {
   const navigate = useNavigate();
   const { login } = useContext(AuthContext);
+  // const { login } = useContext(AuthContext);
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -68,7 +71,22 @@ const Login = () => {
       setError(err.response?.data?.message || 'Login failed');
     }
   };
+  const handleGoogleSuccess = async (credentialResponse) => {
+    try {
+      const idToken = credentialResponse.credential;
+      const res = await api.post('/auth/googlesignin', { idToken });
+      login(res.data.token); // Use your existing login function
+      navigate('/dashboard');
+    } catch (err) {
+      console.error('Google Login Failed', err);
+      setError('Google Sign-In failed. Please try again.');
+    }
+  };
 
+  const handleGoogleError = () => {
+    console.log('Login Failed');
+    setError('Google Sign-In failed. Please try again.');
+  };
   return (
     <div style={{ display: 'flex', flexDirection: 'row', height: '100vh' }}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
@@ -120,19 +138,25 @@ const Login = () => {
               sx={{ marginTop: 2 }}
             >
               Sign In
-            </Button>
+            </Button>            
           </Box>
 
           <div className="separator"><span>or continue with</span></div>
-          <IconButton className="other-options" href='https://www.gmail.com'>
+          {/* <IconButton className="other-options" href='https://www.gmail.com'>
             <GoogleIcon sx={{
               color: 'white',
               scale: 2,
               bgcolor: '#4caf50',
               borderRadius: '50%'
             }} />
-          </IconButton>
-
+          </IconButton> */}
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={handleGoogleError}
+              useOneTap
+            />
+          </Box>
           <div className='register'>
             Not a Member? <a className='register-now' href='/register'>Register Now</a>
           </div>

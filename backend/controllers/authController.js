@@ -2,6 +2,9 @@ const User = require('../models/User');
 const crypto = require('crypto');
 // const sendEmail = require('../utils/sendEmail').default; 
 const sendEmail = require('../utils/sendEmail');
+const { OAuth2Client } = require('google-auth-library');
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
 /**
  * @desc    Register a new user
  * @route   POST /api/auth/register
@@ -276,5 +279,41 @@ exports.resetPassword = async (req, res) => {
   } catch (error) {
     console.error('Reset password error:', error);
     res.status(500).json({ success: false, message: 'Failed to reset password' });
+  }
+};
+
+/**
+ * @desc    Sign in/up with Google
+ * @route   POST /api/auth/googlesignin
+ * @access  Public
+ */
+exports.googleSignIn = async (req, res) => {
+  const { idToken } = req.body;
+
+  try {
+    const ticket = await client.verifyIdToken({
+      idToken,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    const { name, email, email_verified } = ticket.getPayload();
+
+    if (!email_verified) {
+      return res.status(400).json({ success: false, message: 'Google email is not verified.' });
+    }
+
+    let user = await User.findOne({ email });
+
+    // If user exists, sign them in
+    if (user) {
+      sendTokenResponse(user, 200, res);
+    } else {
+      // If user doesn't exist, create a new user
+      const password = email + process.env.JWT_SECRET; // Create a dummy password
+      user = await User.create({ name, email, password });
+      sendTokenResponse(user, 201, res);
+    }
+  } catch (error) {
+    console.error('Google Sign-In Error:', error);
+    res.status(500).json({ success: false, message: 'Google Sign-In failed.' });
   }
 };
