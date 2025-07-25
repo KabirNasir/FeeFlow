@@ -15,6 +15,7 @@ import StudentList from './pages/StudentList';
 import CreateStudent from './pages/CreateStudent';
 import EditStudent from './pages/EditStudent'
 import EditClass from './pages/EditClass';
+import ForgotPassword from './pages/ForgotPassword';
 function App() {
   return (
     <AuthProvider>
@@ -25,6 +26,7 @@ function App() {
         {/* public */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} /> 
 
         {/* everything else requires auth */}
         <Route element={<ProtectedRoute />}>
