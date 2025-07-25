@@ -30,13 +30,15 @@ import {
   TableCell,
   TableBody,
   IconButton,
-  TextField
+  TextField,
 } from '@mui/material';
 import PaymentIcon from '@mui/icons-material/Payment';
 import Breadcrumbs from '@mui/joy/Breadcrumbs';
 import Link from '@mui/joy/Link';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { Link as RouterLink } from 'react-router-dom';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 function TabPanel({ children, value, index }) {
   return value === index && (
     <Box sx={{ p: 2 }}>
@@ -154,6 +156,23 @@ const ClassDetail = () => {
       console.error(err);
     }
   };
+  const handleUnenroll = async (studentId) => {
+    if (window.confirm('Are you sure you want to unenroll this student?')) {
+      try {
+        await api.put(`/classes/${classId}/unenroll`, { studentId });
+        // Refresh student list
+        const res = await api.get(`/classes/${classId}/students`);
+        setStudents(res.data.data);
+      } catch (err) {
+        console.error('Failed to unenroll student:', err);
+        // Optionally, show an error to the user
+      }
+    }
+  };
+
+  // Group students by status
+  const activeStudents = students.filter(s => s.enrollmentStatus === 'active');
+  const inactiveStudents = students.filter(s => s.enrollmentStatus !== 'active');
 
   return (
     <Box sx={{ p: 3 }}>
@@ -162,7 +181,7 @@ const ClassDetail = () => {
       {classInfo && (
         <Breadcrumbs
           separator={<NavigateNextIcon fontSize="small" />}
-          sx={{ mb: 2 , fontUnderline: 'none'}}
+          sx={{ mb: 2, fontUnderline: 'none' }}
         >
           <Link component={RouterLink} to="/dashboard">
             Dashboard
@@ -176,7 +195,16 @@ const ClassDetail = () => {
         </Breadcrumbs>
       )
       }
-      <Typography className="page-heading">Class Detail</Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Typography className="page-heading">Class Detail</Typography>
+        <Button
+          className="button-primary"
+          onClick={() => navigate(`/classes/${classId}/edit`)}
+          startDecorator={<EditIcon />}
+        >
+          Edit Class
+        </Button>
+      </Box>
 
       <Tabs value={tab} onChange={(e, v) => setTab(v)} sx={{ mb: 2 }}>
         <Tab label="Students" />
@@ -199,20 +227,73 @@ const ClassDetail = () => {
         {loadingStudents ? (
           <Box sx={{ textAlign: 'center', mt: 4 }}><CircularProgress /></Box>
         ) : (
-            <Paper sx={{ backgroundColor: '#f0f7f2', borderRadius: '16px' }}>
-            {students.length
-              ? <List className='students-list'>
-                {students.map(s => (
-                  <ListItem key={s._id} divider>
-                    <ListItemText
-                      primary={s.name}
-                      secondary={s.parentInfo?.email || s.email}
-                    />
-                  </ListItem>
-                ))}
-              </List>
-              : <Box sx={{ p: 2 }}>No students enrolled yet.</Box>
-            }
+          <Paper sx={{ backgroundColor: '#f0f7f2', borderRadius: '16px' }}>
+            {activeStudents.length > 0 && (
+              <>
+                <Typography variant="subtitle1" sx={{ mt: 2, mb: 1, color: 'green' }}>Active Students</Typography>
+                <List className='students-list'>
+                  {activeStudents.map(s => (
+                    <ListItem key={s._id} divider secondaryAction={
+                      // <IconButton
+                      //   edge="end"
+                      //   aria-label="unenroll"
+                      //   onClick={() => handleUnenroll(s._id)}
+                      // >
+                      //   <DeleteIcon color="inherit" sx={{ color: 'green' }} />
+                      // </IconButton>
+                      <Button
+                      variant="outlined"
+                      color="error"
+                      size="small"
+                      onClick={() => handleUnenroll(s._id)}
+                      sx={{ minWidth: 0, px: 1.5, fontWeight: 600 }}
+                    >
+                      Unenroll
+                    </Button>
+                    }>
+                      <ListItemText
+                        primary={s.name}
+                        secondary={
+                          <>
+                            {s.parentInfo?.email || s.email}
+                            <span style={{ marginLeft: 8, color: 'green' }}>
+                              ({s.enrollmentStatus})
+                            </span>
+                          </>
+                        }
+                      />
+                    </ListItem>
+                  ))}
+                </List>
+              </>
+            )}
+
+            {inactiveStudents.length > 0 && (
+              <>
+                <Typography variant="subtitle1" sx={{ mt: 2, mb: 1, color: 'gray' }}>Inactive Students</Typography>
+                <List className='students-list'>
+                  {inactiveStudents.map(s => (
+                    <ListItem key={s._id} divider>
+                      <ListItemText
+                        primary={s.name}
+                        secondary={
+                          <>
+                            {s.parentInfo?.email || s.email}
+                            <span style={{ marginLeft: 8, color: 'gray' }}>
+                              ({s.enrollmentStatus})
+                            </span>
+                          </>
+                        }
+                      />
+                    </ListItem>
+                  ))}
+                </List>
+              </>
+            )}
+
+            {students.length === 0 && (
+              <Box sx={{ p: 2 }}>No students enrolled yet.</Box>
+            )}
           </Paper>
         )}
 

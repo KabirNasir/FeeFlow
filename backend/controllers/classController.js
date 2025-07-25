@@ -106,12 +106,36 @@ exports.enrollStudentInClass = async (req, res) => {
 // @desc    Get all students in a class
 // @route   GET /api/classes/:classId/students
 // @access  Private
+// exports.getStudentsInClass = async (req, res) => {
+//     const { classId } = req.params;
+
+//     try {
+//         const enrollments = await Enrollment.find({ class: classId, status: 'active' }).populate('student');
+//         const students = enrollments.map(e => e.student);
+
+//         res.status(200).json({
+//             success: true,
+//             data: students
+//         });
+//     } catch (error) {
+//         console.error('Get students error:', error.message);
+//         res.status(500).json({ success: false, message: 'Failed to fetch students' });
+//     }
+// };
+
 exports.getStudentsInClass = async (req, res) => {
     const { classId } = req.params;
 
     try {
-        const enrollments = await Enrollment.find({ class: classId }).populate('student');
-        const students = enrollments.map(e => e.student);
+        // Fetch all enrollments for this class
+        const enrollments = await Enrollment.find({ class: classId })
+            .populate('student');
+
+        // Map to include student info and status
+        const students = enrollments.map(e => ({
+            ...e.student.toObject(),
+            enrollmentStatus: e.status
+        }));
 
         res.status(200).json({
             success: true,
@@ -339,3 +363,31 @@ exports.getClassById = async (req, res) => {
             .json({ success: false, message: 'Failed to fetch class details' });
     }
 };
+
+// @desc    Update a class
+// @route   PUT /api/classes/:classId
+// @access  Private
+exports.updateClass = async (req, res) => {
+    try {
+        let course = await Class.findById(req.params.classId);
+
+        if (!course) {
+            return res.status(404).json({ success: false, message: 'Class not found' });
+        }
+
+        // Make sure user is the class owner
+        if (course.teacher.toString() !== req.user.id) {
+            return res.status(401).json({ success: false, message: 'Not authorized' });
+        }
+
+        course = await Class.findByIdAndUpdate(req.params.classId, req.body, {
+            new: true,
+            runValidators: true,
+        });
+
+        res.status(200).json({ success: true, data: course });
+    } catch (error) {
+        console.error('Update class error:', error);
+        res.status(500).json({ success: false, message: 'Failed to update class' });
+    }
+  };

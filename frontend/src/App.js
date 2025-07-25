@@ -14,7 +14,7 @@ import ClassDetail from './pages/ClassDetail';
 import StudentList from './pages/StudentList';
 import CreateStudent from './pages/CreateStudent';
 import EditStudent from './pages/EditStudent'
-
+import EditClass from './pages/EditClass';
 function App() {
   return (
     <AuthProvider>
@@ -35,6 +35,7 @@ function App() {
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="classes/new" element={<CreateClass />} />
             <Route path="classes/:classId" element={<ClassDetail />} />
+            <Route path="classes/:classId/edit" element={<EditClass />} />
             <Route path="students" element={<StudentList />} />
             <Route path="students/new" element={<CreateStudent />} />
             <Route path="students" element={<StudentList />} />

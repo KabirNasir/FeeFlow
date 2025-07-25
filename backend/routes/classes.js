@@ -9,7 +9,8 @@ const {
   unenrollStudentFromClass,
   generateFees,
   getFeesForClass,
-  getClassById
+  getClassById,
+  updateClass
 } = require('../controllers/classController');
 
 const { protect } = require('../middlewares/auth');
@@ -37,7 +38,7 @@ router.post('/:classId/generate-fees', generateFees);
 
 router.get('/:classId/fees', getFeesForClass);
 
-+ router.get('/:classId', getClassById);
+router.route('/:classId').get(getClassById).put(updateClass);
 
 
 module.exports = router;
