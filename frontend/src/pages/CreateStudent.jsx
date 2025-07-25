@@ -28,6 +28,7 @@ const CreateStudent = () => {
     parentInfo: { name: '', email: '', phone: '', preferredContact: 'email' }
   });
   const [error, setError] = useState('');
+  const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
 
   const handleChange = e => {
@@ -47,6 +48,7 @@ const CreateStudent = () => {
     e.preventDefault();
     setError('');
     setSubmitting(true);
+    setErrors({});
 
     // simple validation
     if (!form.name || !form.parentInfo.name || !form.parentInfo.email || !form.parentInfo.phone) {
@@ -59,11 +61,24 @@ const CreateStudent = () => {
       await api.post('/students', form);
       navigate('/students');
     } catch (err) {
-      if (err.response?.status === 401) {
+      // if (err.response?.status === 401) {
+      //   logout();
+      //   navigate('/login');
+      // } else {
+      //   setError(err.response?.data?.message || 'Failed to create student');
+      // }
+      if (err.response?.status === 400 && err.response.data.errors) {
+        // Handle validation errors from the backend
+        const backendErrors = {};
+        err.response.data.errors.forEach(error => {
+          backendErrors[error.path] = error.msg;
+        });
+        setErrors(backendErrors);
+      } else if (err.response?.status === 401) {
         logout();
         navigate('/login');
       } else {
-        setError(err.response?.data?.message || 'Failed to create student');
+        setErrors({ general: err.response?.data?.message || 'Failed to create student' });
       }
     } finally {
       setSubmitting(false);
@@ -85,7 +100,8 @@ const CreateStudent = () => {
           Enter Student Details
         </Typography>
 
-        {error && <Alert severity="error" sx={{ mb:2 }}>{error}</Alert>}
+        {/* {error && <Alert severity="error" sx={{ mb:2 }}>{error}</Alert>} */}
+        {errors.general && <Alert severity="error" sx={{ mb: 2 }}>{errors.general}</Alert>}
 
         <Box component="form" onSubmit={handleSubmit} noValidate>
           <TextField
@@ -96,6 +112,8 @@ const CreateStudent = () => {
             onChange={handleChange}
             required
             sx={{ mb: 2 }}
+            error={!!errors.name}
+            helperText={errors.name}
           />
 
           <TextField
@@ -105,7 +123,9 @@ const CreateStudent = () => {
             value={form.email}
             onChange={handleChange}
             sx={{ mb: 2 }}
-          />
+            error={!!errors.email}
+            helperText={errors.email}
+            />
 
           <TextField
             fullWidth
@@ -114,7 +134,9 @@ const CreateStudent = () => {
             value={form.phone}
             onChange={handleChange}
             sx={{ mb: 2 }}
-          />
+            error={!!errors.phone}
+            helperText={errors.phone}
+            />
 
           <Typography variant="subtitle1" sx={{ mt: 2 }}>Parent / Guardian Info</Typography>
 
@@ -126,6 +148,8 @@ const CreateStudent = () => {
             onChange={handleChange}
             required
             sx={{ mb: 2 }}
+            error={!!errors['parentInfo.name']}
+            helperText={errors['parentInfo.name']}
           />
 
           <TextField
@@ -136,6 +160,8 @@ const CreateStudent = () => {
             onChange={handleChange}
             required
             sx={{ mb: 2 }}
+            error={!!errors['parentInfo.email']}
+            helperText={errors['parentInfo.email']}
           />
 
           <TextField
@@ -146,6 +172,8 @@ const CreateStudent = () => {
             onChange={handleChange}
             required
             sx={{ mb: 2 }}
+            error={!!errors['parentInfo.phone']}
+            helperText={errors['parentInfo.phone']}
           />
 
           <Button

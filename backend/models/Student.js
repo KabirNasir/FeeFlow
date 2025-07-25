@@ -19,7 +19,8 @@ const StudentSchema = new mongoose.Schema({
   required: [true, 'Please specify the teacher who created this student']
   },
   phone: {
-    type: String
+    type: String,
+    match: [/^[0-9]{10}$/, 'Please add a valid 10-digit phone number'] 
   },
   parentInfo: {
     name: {
@@ -36,7 +37,8 @@ const StudentSchema = new mongoose.Schema({
     },
     phone: {
       type: String,
-      required: [true, 'Please add parent phone number']
+      required: [true, 'Please add parent phone number'],
+      match: [/^[0-9]{10}$/, 'Please add a valid 10-digit phone number']
     },
     preferredContact: {
       type: String,

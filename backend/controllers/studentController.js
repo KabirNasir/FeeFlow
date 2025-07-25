@@ -37,9 +37,17 @@ exports.createStudent = async (req, res) => {
     });
 
     res.status(201).json({ success: true, data: student });
-  } catch (error) {
-    console.error('Create student error:', error.message);
-    res.status(500).json({ success: false, message: 'Failed to create student' });
+  } catch (err) {
+    // console.error('Create student error:', error.message);
+    // res.status(500).json({ success: false, message: 'Failed to create student' });
+    if (err.name === 'ValidationError') {
+      const errors = Object.keys(err.errors).map(key => ({
+        path: key,
+        msg: err.errors[key].message
+      }));
+      return res.status(400).json({ errors });
+    }
+    res.status(500).json({ message: 'Failed to create student' });
   }
 };
 

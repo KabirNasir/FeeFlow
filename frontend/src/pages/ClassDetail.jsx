@@ -367,7 +367,12 @@ const ClassDetail = () => {
                   </TableCell>
                   <TableCell>{f.period.month}/{f.period.year}</TableCell>
                   <TableCell>
-                    {new Date(f.dueDate).toLocaleDateString()}
+                    {/* {new Date(f.dueDate).toLocaleDateString()} */}
+                    {new Date(f.dueDate).toLocaleDateString('en-US', {
+                      day: 'numeric',
+                      month: 'long',
+                      year: 'numeric',
+                    })}
                   </TableCell>
                   <TableCell>
                     {f.amountPaid} / {f.amount}
