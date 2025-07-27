@@ -10,6 +10,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import Layout from './components/Layout';
 import ReportDetail from './pages/ReportDetail';
 import Dashboard from './pages/Dashboard';
+import DashboardReimagined from './pages/DashboardReimagined';
 import CreateClass from './pages/CreateClass';
 import ClassDetail from './pages/ClassDetail';
 import StudentList from './pages/StudentList';
@@ -42,8 +43,7 @@ function App() {
           <Route element={<Layout />}>
             {/* once inside layout, default to /dashboard */}
             <Route index element={<Navigate to="dashboard" replace />} />
-
-            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="dashboard" element={<DashboardReimagined />} />
             <Route path="classes/new" element={<CreateClass />} />
             <Route path="classes/:classId" element={<ClassDetail />} />
             <Route path="classes/:classId/edit" element={<EditClass />} />
