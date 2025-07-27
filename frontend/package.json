@@ -8,6 +8,7 @@
     "@mui/icons-material": "^7.0.2",
     "@mui/joy": "^5.0.0-beta.52",
     "@mui/material": "^7.0.2",
+    "@mui/x-charts": "^8.9.0",
     "@react-oauth/google": "^0.12.2",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",

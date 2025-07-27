@@ -12,3 +12,7 @@
     color: white;
     transition: background-color 0.3s ease-in-out;
 }
+
+.bgimage{
+    opacity: 0.3;
+}
