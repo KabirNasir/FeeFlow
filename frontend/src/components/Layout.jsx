@@ -60,7 +60,12 @@ const Layout = () => {
   const drawer = (
     <Box sx={{ width: drawerWidth }}>
       <Toolbar>
-        <Typography variant="h6" noWrap>
+        <img
+          src="/circleLogo.png"
+          alt="FeeFlow Logo"
+          style={{ width: 50, height: 50, marginRight: 20 , marginTop: 10}}
+        />
+        <Typography variant="h5" noWrap>
           FeeFlow
         </Typography>
       </Toolbar>
