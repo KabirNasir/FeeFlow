@@ -65,7 +65,7 @@ const Login = () => {
 
       // Save token and redirect
       localStorage.setItem('token', res.data.token);
-      login(res.data.token); 
+      login(res.data.token, res.data.user); 
       navigate('/dashboard'); // your dashboard route
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed');
@@ -75,7 +75,7 @@ const Login = () => {
     try {
       const idToken = credentialResponse.credential;
       const res = await api.post('/auth/googlesignin', { idToken });
-      login(res.data.token); // Use your existing login function
+      login(res.data.token, res.data.user); // Use your existing login function
       navigate('/dashboard');
     } catch (err) {
       console.error('Google Login Failed', err);
