@@ -15,6 +15,7 @@ import ClassDetail from './pages/ClassDetail';
 import StudentList from './pages/StudentList';
 import CreateStudent from './pages/CreateStudent';
 import EditStudent from './pages/EditStudent'
+import Classes from './pages/Classes';
 import EditClass from './pages/EditClass';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
@@ -52,6 +53,7 @@ function App() {
             <Route path="students/:studentId/edit" element={<EditStudent />} />{' '}
             <Route path="reports" element={<Reports />} /> 
             <Route path="reports/:reportId" element={<ReportDetail />} />
+            <Route path="classes" element={<Classes />} />
           </Route>
         </Route>
 
