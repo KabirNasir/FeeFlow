@@ -117,7 +117,7 @@ const DashboardReimagined = () => {
           <CardContent orientation="horizontal">
               <AttachMoneyIcon fontSize="large" sx={{scale: '1.2'}}/>
           <CardContent>
-                  <Typography level="body-md">Total Classes</Typography>
+                  <Typography level="body-md">Total Unpaid</Typography>
                   <Typography level="h2">$ {summary?.totalOutstanding}</Typography>
                 </CardContent>
               </CardContent>
