@@ -1,5 +1,5 @@
 const express = require('express');
-const { getReports, createReport } = require('../controllers/reportController');
+const { getReports, createReport, getReportById, deleteReport } = require('../controllers/reportController');
 const { protect } = require('../middlewares/auth');
 
 const router = express.Router();
@@ -11,4 +11,5 @@ router.route('/')
     .get(getReports)
     .post(createReport);
 
+router.route('/:id').get(getReportById).delete(deleteReport);
 module.exports = router;

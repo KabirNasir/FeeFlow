@@ -8,7 +8,7 @@ import Reports from './pages/Reports';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './contexts/AuthContext';
 import Layout from './components/Layout';
-
+import ReportDetail from './pages/ReportDetail';
 import Dashboard from './pages/Dashboard';
 import CreateClass from './pages/CreateClass';
 import ClassDetail from './pages/ClassDetail';
@@ -51,6 +51,7 @@ function App() {
             <Route path="students/new" element={<CreateStudent />} />
             <Route path="students/:studentId/edit" element={<EditStudent />} />{' '}
             <Route path="reports" element={<Reports />} /> 
+            <Route path="reports/:reportId" element={<ReportDetail />} />
           </Route>
         </Route>
 
