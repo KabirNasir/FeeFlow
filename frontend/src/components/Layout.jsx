@@ -25,6 +25,7 @@ import AddIcon from '@mui/icons-material/Add';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import ClassIcon from '@mui/icons-material/Class';
+import ReceiptIcon from '@mui/icons-material/Receipt';
 const drawerWidth = 240;
 
 const navItems = [
@@ -32,8 +33,7 @@ const navItems = [
   // { text: 'Your Classes', icon: <ClassIcon />, path: '/dashboard' }, // same as dashboard
   { text: 'Students', icon: <GroupIcon sx={{ color: 'var(--white)' }} />, path: '/students' },
   { text: 'Class', icon: <ClassIcon sx={{ color: 'var(--white)' }} />, path: '/classes' },
-
-
+  { text: 'Fees', icon: <ReceiptIcon sx={{ color: 'var(--white)' }} />, path: '/fees' },
 ];
 
 const quickActions = [

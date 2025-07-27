@@ -20,6 +20,7 @@ import EditClass from './pages/EditClass';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import { GoogleOAuthProvider } from '@react-oauth/google';
+import Fees from './pages/Fees';
 
 function App() {
   const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
@@ -53,7 +54,8 @@ function App() {
             <Route path="students/:studentId/edit" element={<EditStudent />} />{' '}
             <Route path="reports" element={<Reports />} /> 
             <Route path="reports/:reportId" element={<ReportDetail />} />
-            <Route path="classes" element={<Classes />} />
+            <Route path="classes" element={<Classes />} />\
+            <Route path="fees" element={<Fees />} />
           </Route>
         </Route>
 

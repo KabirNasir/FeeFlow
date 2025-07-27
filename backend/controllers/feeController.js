@@ -221,3 +221,63 @@ exports.getStudentFees = async (req, res) => {
         res.status(500).json({ success: false, message: 'Failed to fetch student fee records' });
     }
 };
+
+
+
+/**
+* @desc    Get all fees with filtering
+* @route   GET /api/fees
+* @access  Private
+*/
+exports.getFees = async (req, res) => {
+    try {
+        const { classId, studentId, month, year } = req.query;
+
+        // Start by finding all classes that belong to the logged-in teacher
+        const userClasses = await Class.find({ teacher: req.user.id }).select('_id');
+        const userClassIds = userClasses.map(c => c._id);
+
+        // This is the base query. It ensures we only ever look at enrollments
+        // in classes owned by the current user.
+        let enrollmentQuery = { class: { $in: userClassIds } };
+
+        // --- CORRECTED FILTER LOGIC ---
+        // If a specific class is selected, ADD it to the query
+        if (classId) {
+            enrollmentQuery.class = classId;
+        }
+        // If a specific student is selected, ADD it to the query
+        if (studentId) {
+            enrollmentQuery.student = studentId;
+        }
+
+        const enrollments = await Enrollment.find(enrollmentQuery).select('_id');
+        const enrollmentIds = enrollments.map(e => e._id);
+
+        // Now, build the query for the fees based on the filtered enrollments
+        let feeQuery = { enrollment: { $in: enrollmentIds } };
+
+        if (month) {
+            feeQuery['period.month'] = parseInt(month, 10);
+        }
+        if (year) {
+            feeQuery['period.year'] = parseInt(year, 10);
+        }
+
+        const fees = await FeeRecord.find(feeQuery)
+            .populate({
+                path: 'enrollment',
+                populate: [
+                    { path: 'student', select: 'name' },
+                    { path: 'class', select: 'name' }
+                ]
+            })
+            .sort({ dueDate: -1 });
+
+        res.status(200).json({ success: true, count: fees.length, data: fees });
+
+    } catch (error) {
+        console.error("Get fees error:", error);
+        res.status(500).json({ success: false, message: 'Failed to fetch fees' });
+    }
+  };
