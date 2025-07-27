@@ -24,12 +24,16 @@ import GroupIcon from '@mui/icons-material/Group';
 import AddIcon from '@mui/icons-material/Add';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AssessmentIcon from '@mui/icons-material/Assessment';
+import ClassIcon from '@mui/icons-material/Class';
 const drawerWidth = 240;
 
 const navItems = [
   { text: 'Dashboard', icon: <DashboardIcon sx={{ color: 'var(--white)' }} />, path: '/dashboard' },
   // { text: 'Your Classes', icon: <ClassIcon />, path: '/dashboard' }, // same as dashboard
-  { text: 'All Students', icon: <GroupIcon sx={{ color: 'var(--white)' }} />, path: '/students' },
+  { text: 'Students', icon: <GroupIcon sx={{ color: 'var(--white)' }} />, path: '/students' },
+  // { text: 'Class', icon: <ClassIcon sx={{ color: 'var(--white)' }} />, path: '/classes' },
+
+
 ];
 
 const quickActions = [

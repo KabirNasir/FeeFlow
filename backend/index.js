@@ -24,6 +24,8 @@ app.use('/api/students', require('./routes/students'));
 app.use('/api/fees', require('./routes/fees'));
 const reports = require('./routes/reports'); 
 app.use('/api/reports', reports);
+const dashboard = require('./routes/dashboard');
+app.use('/api/dashboard', dashboard); 
 // app.use('/api/enrollments', require('./routes/enrollments'));
 // app.use('/api/payments', require('./routes/payments'));
 // app.use('/api/notifications', require('./routes/notifications'));
