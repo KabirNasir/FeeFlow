@@ -5,7 +5,8 @@ const {
     generateFees,
     markFeeAsPaid,
     getClassFees,
-    getStudentFees
+    getStudentFees,
+    getFees
 } = require('../controllers/feeController');
 const { protect } = require('../middlewares/auth');
 
@@ -25,5 +26,8 @@ router.get('/class/:classId', getClassFees);
 
 // 4. Get all fee records for a student
 router.get('/student/:studentId', getStudentFees);
+
+router.route('/').get(getFees); 
+
 
 module.exports = router;

@@ -3,6 +3,8 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const connectDB = require('./utils/db');
+const scheduleFeeGeneration = require('./jobs/feeScheduler'); 
+const scheduleFeeReminders = require('./jobs/reminderScheduler');
 
 // Load environment variables
 dotenv.config();
@@ -43,7 +45,8 @@ app.use((err, req, res, next) => {
     error: err.message || 'Server Error'
   });
 });
-
+scheduleFeeGeneration();
+scheduleFeeReminders();
 // Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
