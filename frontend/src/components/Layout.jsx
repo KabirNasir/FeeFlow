@@ -2,7 +2,7 @@
 import React, { useContext, useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthContext';
-
+import AccountCircle from '@mui/icons-material/AccountCircle';
 import {
   Box,
   CssBaseline,
@@ -92,6 +92,10 @@ const Layout = () => {
       <Divider />
 
       <List>
+        <ListItemButton onClick={() => navigate('/profile')}>
+          <ListItemIcon><AccountCircle sx={{ color: '#fff' }} /></ListItemIcon>
+          <ListItemText primary="Profile" />
+        </ListItemButton>
         <ListItemButton onClick={handleLogout}>
           <ListItemIcon><LogoutIcon sx={{ color: '#fff' }} /></ListItemIcon>
           <ListItemText primary="Logout" primaryTypographyProps={{ color: '#fff' }} />

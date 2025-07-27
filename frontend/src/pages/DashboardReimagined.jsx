@@ -31,7 +31,7 @@ const DashboardReimagined = () => {
   const [error, setError] = useState('');
 
   const navigate = useNavigate();
-  const { logout } = useContext(AuthContext);
+  const { user,logout } = useContext(AuthContext);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -68,15 +68,15 @@ const DashboardReimagined = () => {
   }
 
   const pieData = [
-    { label: 'Total Paid Amount in USD', value: summary?.totalPaid || 0 , color: 'var(--sunglow)' },
-    { label: 'Total Outstanding Amount in USD', value: summary?.totalOutstanding || 0 , color: 'var(--asparagus)' },
+    { label: 'Total Paid Amount in INR', value: summary?.totalPaid || 0 , color: 'var(--sunglow)' },
+    { label: 'Total Outstanding Amount in INR', value: summary?.totalOutstanding || 0 , color: 'var(--asparagus)' },
   ];
 
   return (
     <div className="dashboard-container">
       {/* <Typography level="h1" sx={{ color: 'var(--darkgreen)' }}>Dashboard</Typography> */}
       <Typography level="h3" sx={{ color: 'var(--asparagus)' }}>
-        Welcome, {summary?.user?.name || 'User'}!
+        Welcome, {user?.name || 'User'}!
       </Typography>
       <br/>
       <br />
@@ -118,7 +118,7 @@ const DashboardReimagined = () => {
               <AttachMoneyIcon fontSize="large" sx={{scale: '1.2'}}/>
           <CardContent>
                   <Typography level="body-md">Total Unpaid</Typography>
-                  <Typography level="h2">$ {summary?.totalOutstanding}</Typography>
+                  <Typography level="h2">INR {summary?.totalOutstanding}</Typography>
                 </CardContent>
               </CardContent>
               <CardActions>

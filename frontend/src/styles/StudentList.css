@@ -14,21 +14,21 @@
 }
 
 .student-table-name {
-    color: var(--asparagus) !important;
+    color: var(--black) !important;
     font-size: 17px !important;
 }
 
 .student-table-email {
-    color: var(--asparagus) !important;
+    color: var(--black) !important;
     font-size: 17px !important;
 }
 
 .student-table-parent-email {
-    color: var(--asparagus) !important;
+    color: var(--black) !important;
     font-size: 17px !important;
 }
 
 .student-table-actions {
-    color: var(--sunglow) !important;
+    color: var(--asparagus) !important;
     font-size: 17px !important;
 }

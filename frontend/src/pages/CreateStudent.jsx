@@ -27,7 +27,7 @@ const CreateStudent = () => {
     phone: '',
     parentInfo: { name: '', email: '', phone: '', preferredContact: 'email' }
   });
-  const [error, setError] = useState('');
+  // const [error, setError] = useState(''); // delete
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
 
@@ -46,16 +46,16 @@ const CreateStudent = () => {
 
   const handleSubmit = async e => {
     e.preventDefault();
-    setError('');
+    // setError('');
     setSubmitting(true);
     setErrors({});
 
     // simple validation
-    if (!form.name || !form.parentInfo.name || !form.parentInfo.email || !form.parentInfo.phone) {
-      setError('Please fill in all required student & parent fields');
-      setSubmitting(false);
-      return;
-    }
+    // if (!form.name || !form.parentInfo.name || !form.parentInfo.email || !form.parentInfo.phone) {
+    //   setError('Please fill in all required student & parent fields');
+    //   setSubmitting(false);
+    //   return;
+    // }
 
     try {
       await api.post('/students', form);
@@ -85,13 +85,13 @@ const CreateStudent = () => {
     }
   };
 
-  if (submitting) {
-    return (
-      <Box sx={{ display: 'flex', height: '60vh', justifyContent: 'center', alignItems: 'center' }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
+  // if (submitting) {
+  //   return (
+  //     <Box sx={{ display: 'flex', height: '60vh', justifyContent: 'center', alignItems: 'center' }}>
+  //       <CircularProgress />
+  //     </Box>
+  //   );
+  // }
 
   return (
     <Box sx={{ p: 4 }}>
