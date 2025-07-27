@@ -4,6 +4,7 @@ import './App.css';
 
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Reports from './pages/Reports';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './contexts/AuthContext';
 import Layout from './components/Layout';
@@ -49,6 +50,7 @@ function App() {
             <Route path="students" element={<StudentList />} />
             <Route path="students/new" element={<CreateStudent />} />
             <Route path="students/:studentId/edit" element={<EditStudent />} />{' '}
+            <Route path="reports" element={<Reports />} /> 
           </Route>
         </Route>
 

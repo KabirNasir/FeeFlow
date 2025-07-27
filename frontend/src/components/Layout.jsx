@@ -23,7 +23,7 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import GroupIcon from '@mui/icons-material/Group';
 import AddIcon from '@mui/icons-material/Add';
 import LogoutIcon from '@mui/icons-material/Logout';
-
+import AssessmentIcon from '@mui/icons-material/Assessment';
 const drawerWidth = 240;
 
 const navItems = [
@@ -35,6 +35,7 @@ const navItems = [
 const quickActions = [
   { text: 'New Class', icon: <AddIcon sx={{ color: 'var(--white)' }} />, path: '/classes/new' },
   { text: 'New Student', icon: <AddIcon sx={{ color: 'var(--white)' }} />, path: '/students/new' },
+  { text: 'Reports', icon: <AssessmentIcon sx={{ color: 'var(--white)' }} />, path: '/reports' },
 ];
 
 const Layout = () => {
