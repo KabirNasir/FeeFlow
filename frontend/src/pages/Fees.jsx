@@ -126,8 +126,8 @@ const Fees = () => {
                                     <TableCell>{fee.enrollment?.class?.name || 'N/A'}</TableCell>
                                     <TableCell>{fee.period.month}/{fee.period.year}</TableCell>
                                     <TableCell>{fee.status}</TableCell>
-                                    <TableCell>${fee.amount}</TableCell>
-                                    <TableCell>${fee.amountPaid}</TableCell>
+                                    <TableCell>INR {fee.amount}</TableCell>
+                                    <TableCell>INR {fee.amountPaid}</TableCell>
                                     <TableCell>{new Date(fee.dueDate).toLocaleDateString()}</TableCell>
                                 </TableRow>
                             ))
