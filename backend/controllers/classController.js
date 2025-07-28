@@ -55,24 +55,20 @@ exports.enrollStudentInClass = async (req, res) => {
     const { studentId } = req.body;
 
     try {
-        // Validate class
+        // --- THIS SECTION IS THE SAME ---
         const existingClass = await Class.findById(classId);
         if (!existingClass) {
             return res.status(404).json({ success: false, message: 'Class not found' });
         }
 
-        // Validate student
         const existingStudent = await Student.findById(studentId);
         if (!existingStudent) {
             return res.status(404).json({ success: false, message: 'Student not found' });
         }
 
-        // Check if already enrolled
-        // const alreadyEnrolled = await Enrollment.findOne({ class: classId, student: studentId });
-        // if (alreadyEnrolled) {
-        //   return res.status(400).json({ success: false, message: 'Student is already enrolled in this class' });
-        // }
         const existingEnrollment = await Enrollment.findOne({ class: classId, student: studentId });
+
+        let finalEnrollment; // We'll store the active enrollment here
 
         if (existingEnrollment) {
             if (existingEnrollment.status === 'active') {
@@ -81,27 +77,105 @@ exports.enrollStudentInClass = async (req, res) => {
 
             // Reactivate previous enrollment
             existingEnrollment.status = 'active';
-            existingEnrollment.joinedOn = new Date(); // optional: reset join date
+            existingEnrollment.joinedOn = new Date();
             await existingEnrollment.save();
-
-            return res.status(200).json({
-                success: true,
-                message: 'Student re-enrolled successfully',
-                data: existingEnrollment
-            });
+            finalEnrollment = existingEnrollment; // This is now our active enrollment
+        } else {
+            // Create a new enrollment
+            const newEnrollment = await Enrollment.create({ class: classId, student: studentId });
+            finalEnrollment = newEnrollment; // This is our active enrollment
         }
 
-        const enrollment = await Enrollment.create({ class: classId, student: studentId });
+        // --- START OF NEW FEE GENERATION LOGIC ---
+        const now = new Date();
+        const month = now.getMonth() + 1;
+        const year = now.getFullYear();
+
+        // Check if a fee for the current period has already been created for this enrollment
+        const feeExists = await FeeRecord.findOne({
+            enrollment: finalEnrollment._id,
+            'period.month': month,
+            'period.year': year
+        });
+
+        // If no fee exists for this month, create one
+        if (!feeExists) {
+            const dueDate = new Date(year, month - 1, existingClass.fees.dueDay || 1);
+            await FeeRecord.create({
+                enrollment: finalEnrollment._id,
+                amount: existingClass.fees.amount,
+                currency: existingClass.fees.currency,
+                dueDate,
+                period: { month, year }
+            });
+        }
+        // --- END OF NEW FEE GENERATION LOGIC ---
 
         res.status(201).json({
             success: true,
-            data: { enrollment }
+            message: 'Student enrolled successfully and first fee generated.',
+            data: { enrollment: finalEnrollment }
         });
     } catch (error) {
         console.error('Enroll student error:', error.message);
         res.status(500).json({ success: false, message: 'Failed to enroll student' });
     }
 };
+// // @desc    Enroll an existing student in a class
+// // @route   POST /api/classes/:classId/enroll
+// // @access  Private
+// exports.enrollStudentInClass = async (req, res) => {
+//     const { classId } = req.params;
+//     const { studentId } = req.body;
+
+//     try {
+//         // Validate class
+//         const existingClass = await Class.findById(classId);
+//         if (!existingClass) {
+//             return res.status(404).json({ success: false, message: 'Class not found' });
+//         }
+
+//         // Validate student
+//         const existingStudent = await Student.findById(studentId);
+//         if (!existingStudent) {
+//             return res.status(404).json({ success: false, message: 'Student not found' });
+//         }
+
+//         // Check if already enrolled
+//         // const alreadyEnrolled = await Enrollment.findOne({ class: classId, student: studentId });
+//         // if (alreadyEnrolled) {
+//         //   return res.status(400).json({ success: false, message: 'Student is already enrolled in this class' });
+//         // }
+//         const existingEnrollment = await Enrollment.findOne({ class: classId, student: studentId });
+
+//         if (existingEnrollment) {
+//             if (existingEnrollment.status === 'active') {
+//                 return res.status(400).json({ success: false, message: 'Student is already enrolled in this class' });
+//             }
+
+//             // Reactivate previous enrollment
+//             existingEnrollment.status = 'active';
+//             existingEnrollment.joinedOn = new Date(); // optional: reset join date
+//             await existingEnrollment.save();
+
+//             return res.status(200).json({
+//                 success: true,
+//                 message: 'Student re-enrolled successfully',
+//                 data: existingEnrollment
+//             });
+//         }
+
+//         const enrollment = await Enrollment.create({ class: classId, student: studentId });
+
+//         res.status(201).json({
+//             success: true,
+//             data: { enrollment }
+//         });
+//     } catch (error) {
+//         console.error('Enroll student error:', error.message);
+//         res.status(500).json({ success: false, message: 'Failed to enroll student' });
+//     }
+// };
 
 // @desc    Get all students in a class
 // @route   GET /api/classes/:classId/students

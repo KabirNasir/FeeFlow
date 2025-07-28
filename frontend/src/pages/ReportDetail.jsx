@@ -14,8 +14,9 @@ import Link from '@mui/joy/Link';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import '../styles/Layout.css';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-
+import { CSVLink } from 'react-csv';
+import DownloadIcon from '@mui/icons-material/Download';
+import { Button } from '@mui/material';
 const ReportDetail = () => {
     const { reportId } = useParams();
     const [report, setReport] = useState(null);
@@ -53,7 +54,27 @@ const ReportDetail = () => {
     if (!report) {
         return <Typography>No report found.</Typography>;
     }
-
+    const csvHeaders = [
+        { label: "Class Name", key: "className" },
+        { label: "Student Name", key: "studentName" },
+        { label: "Period", key: "period" },
+        { label: "Status", key: "status" },
+        { label: "Amount Due", key: "amount" },
+        { label: "Amount Paid", key: "amountPaid" },
+    ];
+    // Flatten the nested report data into a single array for the CSV
+    const csvData = report.data.summaryByClass.flatMap(classData =>
+        classData.studentSummaries.flatMap(student =>
+            student.fees.map(fee => ({
+                className: classData.className,
+                studentName: student.studentName,
+                period: fee.period,
+                status: fee.status,
+                amount: fee.amount,
+                amountPaid: fee.amountPaid,
+            }))
+        )
+    );
     // Safely access nested data
     // const { totalCollected, totalDue, outstanding, feeDetails = [] } = report.data;
     const { totalCollected, totalDue, outstanding, summaryByClass = [] } = report.data;
@@ -67,6 +88,23 @@ const ReportDetail = () => {
             </Breadcrumbs>
 
             <Paper elevation={3} sx={{ p: 3 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography variant="h4" className="page-heading" gutterBottom>
+                        {report.title}
+                    </Typography>
+
+                    {/* --- NEW: Add the Export Button --- */}
+                    <CSVLink
+                        data={csvData}
+                        headers={csvHeaders}
+                        filename={`${report.title}.csv`}
+                        style={{ textDecoration: 'none' }}
+                    >
+                        <Button variant="outlined" startIcon={<DownloadIcon />}>
+                            Export
+                        </Button>
+                    </CSVLink>
+                </Box>
                 <Typography variant="h4" className="page-heading" gutterBottom>
                     {report.title}
                 </Typography>
