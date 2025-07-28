@@ -1,10 +1,9 @@
-
 import React, { useEffect, useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import api from '../services/api';
 import { AuthContext } from '../contexts/AuthContext';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
-
+import ConfirmDialog from '../components/ConfirmDialog';
 import {
   Box,
   Typography,
@@ -30,10 +29,9 @@ import {
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import '../styles/StudentList.css';
 import SearchIcon from '@mui/icons-material/Search';
-import Link from '@mui/material/Link';
-import { Link as RouterLink } from 'react-router-dom';
+import '../styles/StudentList.css';
+
 
 const StudentList = () => {
   const { logout } = useContext(AuthContext);
@@ -42,10 +40,13 @@ const StudentList = () => {
   const [students, setStudents] = useState([]);
   const [classes, setClasses] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState(''); // State for search input
+  const [searchTerm, setSearchTerm] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState('');
   const [selectedClass, setSelectedClass] = useState('');
+  const [error, setError] = useState('');
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [studentToDelete, setStudentToDelete] = useState(null);
 
   // fetch students + classes
   useEffect(() => {
@@ -55,13 +56,16 @@ const StudentList = () => {
           api.get('/students'),
           api.get('/classes')
         ]);
-        setStudents(stuRes.data.data);
-        setClasses(clsRes.data.data);
+        // Assuming the API returns data in a 'data' property
+        setStudents(stuRes.data.data || stuRes.data);
+        setClasses(clsRes.data.data || clsRes.data);
       } catch (err) {
+        setError('Failed to fetch data.');
         if (err.response?.status === 401) {
           logout();
           navigate('/login');
         }
+        console.error(err);
       } finally {
         setLoading(false);
       }
@@ -79,20 +83,29 @@ const StudentList = () => {
         studentId: selectedStudent
       });
       setDialogOpen(false);
+      // Maybe add a success message here
     } catch (err) {
+      setError('Failed to enroll student.');
       console.error(err);
     }
   };
 
-  const handleDelete = async (studentId) => {
-    if (window.confirm('Are you sure you want to delete this student?')) {
+  const handleDeleteClick = (id) => {
+    setStudentToDelete(id);
+    setConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (studentToDelete) {
       try {
-        await api.delete(`/students/${studentId}`);
-        setStudents((students) =>
-          students.filter((s) => s._id !== studentId)
-        );
+        await api.delete(`/students/${studentToDelete}`);
+        setStudents(students.filter((student) => student._id !== studentToDelete));
       } catch (err) {
+        setError('Failed to delete student.');
         console.error(err);
+      } finally {
+        setConfirmOpen(false);
+        setStudentToDelete(null);
       }
     }
   };
@@ -115,12 +128,15 @@ const StudentList = () => {
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
         <Typography variant="h4" className="page-heading">All Students</Typography>
         <Button
-          className="button-primary"
-          onClick={() => navigate('/students/new')}
+          variant="contained"
+          color="primary"
+          onClick={() => navigate('/create-student')}
         >
           New Student
         </Button>
       </Box>
+
+      {error && <Typography color="error">{error}</Typography>}
 
       {/* Search Bar */}
       <Paper sx={{ p: 2, mb: 3 }}>
@@ -152,23 +168,17 @@ const StudentList = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {/* === THIS IS THE ONLY CHANGE === */}
-            {/* Use the 'filteredStudents' array here instead of 'students' */}
             {filteredStudents.map((stu) => (
-              <TableRow key={stu._id}>
+              <TableRow key={stu._id} hover>
+                {/* <TableCell className='table-body-cell'>
+                  <Link to={`/students/${stu._id}`} className="student-name-link">
+                    {stu.name}
+                  </Link>
+                </TableCell> */}
                 <TableCell className='table-body-cell'>{stu.name}</TableCell>
-                {/* <TableCell className='student-table-name'> */}
-                  {/* MAKE THE NAME A CLICKABLE LINK */}
-                  {/* <Link */}
-                    {/* component={RouterLink} */}
-                    {/* to={`/students/${stu._id}/profile`} */}
-                    {/* sx={{ textDecoration: 'none', color: 'inherit', '&:hover': { textDecoration: 'underline' } }} */}
-                  {/* > */}
-                    {/* {stu.name} */}
-                  {/* </Link> */}
-                {/* // </TableCell> */}
+
                 <TableCell className='table-body-cell'>{stu.email || '—'}</TableCell>
-                <TableCell className='table-body-cell'>{stu.parentInfo.email}</TableCell>
+                <TableCell className='table-body-cell'>{stu.parentInfo?.email || '—'}</TableCell>
                 <TableCell align="right">
                   <Button className='student-table-actions'
                     size="small"
@@ -182,7 +192,7 @@ const StudentList = () => {
                   >
                     <EditIcon />
                   </IconButton>
-                  <IconButton className="student-list-icon" onClick={() => handleDelete(stu._id)}>
+                  <IconButton className="student-list-icon" onClick={() => handleDeleteClick(stu._id)} color="error">
                     <DeleteIcon />
                   </IconButton>
                   <IconButton
@@ -192,7 +202,6 @@ const StudentList = () => {
                   >
                     <ArrowForwardIosIcon fontSize="small" />
                   </IconButton>
-
                 </TableCell>
               </TableRow>
             ))}
@@ -230,6 +239,15 @@ const StudentList = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        open={confirmOpen}
+        onClose={() => setConfirmOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title="Delete Student"
+        message="Are you sure you want to delete this student? This will remove all their records and cannot be undone."
+      />
     </Box>
   );
 };

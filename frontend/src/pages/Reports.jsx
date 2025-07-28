@@ -3,16 +3,22 @@ import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import {
     Box, Typography, Button, Paper, List, ListItem, ListItemText,
-    CircularProgress, Alert, IconButton, ListItemSecondaryAction
+    CircularProgress, Alert, IconButton
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
-import '../styles/Layout.css'; 
+import ConfirmDialog from '../components/ConfirmDialog'; // Import the new component
+import '../styles/Layout.css';
+
 const Reports = () => {
     const navigate = useNavigate();
     const [reports, setReports] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [generating, setGenerating] = useState(false);
+
+    // --- Delete confirmation state ---
+    const [confirmOpen, setConfirmOpen] = useState(false);
+    const [reportToDelete, setReportToDelete] = useState(null);
 
     const fetchReports = async () => {
         try {
@@ -35,9 +41,7 @@ const Reports = () => {
         setGenerating(true);
         setError('');
         try {
-            // You can expand this to ask for a title in a dialog later
             await api.post('/reports', { title: `Fee Collection Summary - ${new Date().toLocaleDateString()}` });
-            // Refresh the list after generating
             fetchReports();
         } catch (err) {
             setError('Failed to generate report.');
@@ -47,21 +51,26 @@ const Reports = () => {
         }
     };
 
-    const handleDelete = async (reportId) => {
-        // Prevent the navigation from firing
-        // event.stopPropagation(); 
+    const handleDeleteClick = (reportId) => {
+        setReportToDelete(reportId);
+        setConfirmOpen(true);
+    };
 
-        if (window.confirm('Are you sure you want to delete this report?')) {
+    const handleConfirmDelete = async () => {
+        if (reportToDelete) {
             try {
-                await api.delete(`/reports/${reportId}`);
-                // Update the UI instantly by filtering out the deleted report
-                setReports(currentReports => currentReports.filter(report => report._id !== reportId));
+                await api.delete(`/reports/${reportToDelete}`);
+                setReports(currentReports => currentReports.filter(report => report._id !== reportToDelete));
             } catch (err) {
                 setError('Failed to delete report.');
                 console.error(err);
+            } finally {
+                setConfirmOpen(false);
+                setReportToDelete(null);
             }
         }
-      };
+    };
+
     return (
         <Box sx={{ p: 4 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
@@ -94,12 +103,13 @@ const Reports = () => {
                                     aria-label="delete"
                                     onClick={(e) => {
                                         e.stopPropagation(); // Stop the click from bubbling up to the ListItem
-                                        handleDelete(report._id);
+                                        handleDeleteClick(report._id);
                                     }}
+                                    color="error"
                                 >
                                     <DeleteIcon />
                                 </IconButton>
-                              } >
+                            } >
                                 <ListItemText
                                     primary={report.title}
                                     secondary={`Type: ${report.reportType.replace('_', ' ')} | Generated on: ${new Date(report.createdAt).toLocaleDateString()}`}
@@ -113,6 +123,15 @@ const Reports = () => {
                     </List>
                 )}
             </Paper>
+
+            {/* Delete Confirmation Dialog */}
+            <ConfirmDialog
+                open={confirmOpen}
+                onClose={() => setConfirmOpen(false)}
+                onConfirm={handleConfirmDelete}
+                title="Delete Report"
+                message="Are you sure you want to delete this report? This action cannot be undone."
+            />
         </Box>
     );
 };

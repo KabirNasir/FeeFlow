@@ -4,6 +4,7 @@ import React, { useEffect, useState, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { AuthContext } from '../contexts/AuthContext';
+import ConfirmDialog from '../components/ConfirmDialog'; // Import the new component
 
 import {
   Box,
@@ -39,7 +40,7 @@ import Link from '@mui/joy/Link';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { Link as RouterLink } from 'react-router-dom';
 import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
+
 function TabPanel({ children, value, index }) {
   return value === index && (
     <Box sx={{ p: 2 }}>
@@ -55,8 +56,6 @@ const ClassDetail = () => {
 
   const [tab, setTab] = useState(0);
 
-
-  // ─── NEW: store the class’s name/details for breadcrumbs ────────────────
   const [classInfo, setClassInfo] = useState(null);
   // --- Students tab state ---
   const [students, setStudents] = useState([]);
@@ -75,18 +74,19 @@ const ClassDetail = () => {
   const [sortConfig, setSortConfig] = useState({ key: 'dueDate', direction: 'descending' });
   const [filterStudent, setFilterStudent] = useState('');
 
+  // --- Unenroll confirmation state ---
+  const [unenrollConfirmOpen, setUnenrollConfirmOpen] = useState(false);
+  const [studentToUnenroll, setStudentToUnenroll] = useState(null);
+  const [error, setError] = useState('');
+
+
   // fetch enrolled students when component mounts
   useEffect(() => {
     (async () => {
       try {
-        // const res = await api.get(`/classes/${classId}/students`);
-        // setStudents(res.data.data);
-
-        // ─── NEW: fetch the class itself ───────────────────────────────
         const classRes = await api.get(`/classes/${classId}`);
         setClassInfo(classRes.data.data);
 
-        // then fetch students as before
         const res = await api.get(`/classes/${classId}/students`);
         setStudents(res.data.data);
       } catch (err) {
@@ -137,6 +137,7 @@ const ClassDetail = () => {
       setDialogOpen(false);
       setSelectedStudent('');
     } catch (err) {
+      setError('Failed to enroll student.');
       console.error(err);
     }
   };
@@ -156,44 +157,37 @@ const ClassDetail = () => {
       setFees(res.data.data);
       setPayDialog({ open: false, feeId: null });
     } catch (err) {
+      setError('Failed to record payment.');
       console.error(err);
     }
   };
-  const handleUnenroll = async (studentId) => {
-    if (window.confirm('Are you sure you want to unenroll this student?')) {
+
+  const handleUnenrollClick = (studentId) => {
+    setStudentToUnenroll(studentId);
+    setUnenrollConfirmOpen(true);
+  };
+
+  const handleConfirmUnenroll = async () => {
+    if (studentToUnenroll) {
       try {
-        await api.put(`/classes/${classId}/unenroll`, { studentId });
+        await api.put(`/classes/${classId}/unenroll`, { studentId: studentToUnenroll });
         // Refresh student list
         const res = await api.get(`/classes/${classId}/students`);
         setStudents(res.data.data);
       } catch (err) {
+        setError('Failed to unenroll student.');
         console.error('Failed to unenroll student:', err);
-        // Optionally, show an error to the user
+      } finally {
+        setUnenrollConfirmOpen(false);
+        setStudentToUnenroll(null);
       }
     }
   };
-  // Sorting logic
-  // const sortedFees = React.useMemo(() => {
-  //   let sortableFees = [...fees];
-  //   if (sortConfig !== null) {
-  //     sortableFees.sort((a, b) => {
-  //       if (a[sortConfig.key] < b[sortConfig.key]) {
-  //         return sortConfig.direction === 'ascending' ? -1 : 1;
-  //       }
-  //       if (a[sortConfig.key] > b[sortConfig.key]) {
-  //         return sortConfig.direction === 'ascending' ? 1 : -1;
-  //       }
-  //       return 0;
-  //     });
-  //   }
-  //   return sortableFees;
-  // }, [fees, sortConfig]);
 
   const sortedFees = React.useMemo(() => {
     let sortableFees = [...fees];
     if (sortConfig.key) {
       sortableFees.sort((a, b) => {
-        // Access nested student name correctly
         const aValue = sortConfig.key === 'studentName' ? a.enrollment.student.name : a[sortConfig.key];
         const bValue = sortConfig.key === 'studentName' ? b.enrollment.student.name : b[sortConfig.key];
 
@@ -230,7 +224,6 @@ const ClassDetail = () => {
   return (
     <Box sx={{ p: 3 }}>
 
-      {/* ─── NEW: show “Dashboard > Your Classes > This Class” ───────────── */}
       {classInfo && (
         <Breadcrumbs
           separator={<NavigateNextIcon fontSize="small" />}
@@ -250,12 +243,6 @@ const ClassDetail = () => {
       }
       {classInfo && (
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-          {/* <Box>
-            <Typography className="page-heading">{classInfo.name}</Typography>
-            <Typography color="text.secondary">
-              Fee: ₹{classInfo.fees.amount} ({classInfo.fees.frequency})
-            </Typography>
-          </Box> */}
           <Box>
             <Typography variant="h4" component="h1" sx={{ fontWeight: 'bold' }}>
               {classInfo.name} - Grade {classInfo.grade}
@@ -265,25 +252,17 @@ const ClassDetail = () => {
             </Typography>
           </Box>
           <Button
-            className="button-primary"
+            variant="contained"
+            color="primary"
             onClick={() => navigate(`/classes/${classId}/edit`)}
-            startDecorator={<EditIcon />}
+            startIcon={<EditIcon />}
           >
             Edit Class
           </Button>
         </Box>
       )}
 
-      {/* <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography className="page-heading">Class Detail</Typography>
-        <Button
-          className="button-primary"
-          onClick={() => navigate(`/classes/${classId}/edit`)}
-          startDecorator={<EditIcon />}
-        >
-          Edit Class
-        </Button>
-      </Box> */}
+      {error && <Typography color="error">{error}</Typography>}
 
       <Tabs value={tab} onChange={(e, v) => setTab(v)} sx={{ mb: 2 }}>
         <Tab label="Students" />
@@ -313,22 +292,15 @@ const ClassDetail = () => {
                 <List className='students-list'>
                   {activeStudents.map(s => (
                     <ListItem key={s._id} divider secondaryAction={
-                      // <IconButton
-                      //   edge="end"
-                      //   aria-label="unenroll"
-                      //   onClick={() => handleUnenroll(s._id)}
-                      // >
-                      //   <DeleteIcon color="inherit" sx={{ color: 'green' }} />
-                      // </IconButton>
                       <Button
-                      variant="outlined"
-                      color="error"
-                      size="small"
-                      onClick={() => handleUnenroll(s._id)}
-                      sx={{ minWidth: 0, px: 1.5, fontWeight: 600 }}
-                    >
-                      Unenroll
-                    </Button>
+                        variant="outlined"
+                        color="error"
+                        size="small"
+                        onClick={() => handleUnenrollClick(s._id)}
+                        sx={{ minWidth: 0, px: 1.5, fontWeight: 600 }}
+                      >
+                        Unenroll
+                      </Button>
                     }>
                       <ListItemText
                         primary={s.name}
@@ -443,44 +415,32 @@ const ClassDetail = () => {
           <Box sx={{ textAlign: 'center', mt: 4 }}><CircularProgress /></Box>
         ) : (
           <Table>
-            {/* <TableHead> */}
-              {/* <TableRow> */}
-                {/* Make TableCell headers clickable */}
-                {/* <TableCell onClick={() => requestSort('studentName')}>Student</TableCell> */}
-                {/* <TableCell>Period</TableCell> */}
-                {/* <TableCell onClick={() => requestSort('dueDate')}>Due Date</TableCell> */}
-                {/* <TableCell onClick={() => requestSort('status')}>Status</TableCell> */}
-                {/* <TableCell>Paid / Due</TableCell> */}
-                {/* <TableCell align="right">Action</TableCell> */}
-              {/* </TableRow> */}
-            {/* </TableHead> */}
-              <TableHead>
-                <TableRow>
-                  <TableCell
-                    onClick={() => requestSort('studentName')}
-                    sx={{ fontWeight: 'bold', cursor: 'pointer' }}
-                  >
-                    Student
-                  </TableCell>
-                  <TableCell sx={{ fontWeight: 'bold' }}>Period</TableCell>
-                  <TableCell
-                    onClick={() => requestSort('dueDate')}
-                    sx={{ fontWeight: 'bold', cursor: 'pointer' }}
-                  >
-                    Due Date
-                  </TableCell>
-                  <TableCell
-                    onClick={() => requestSort('status')}
-                    sx={{ fontWeight: 'bold', cursor: 'pointer' }}
-                  >
-                    Status
-                  </TableCell>
-                  <TableCell sx={{ fontWeight: 'bold' }}>Paid / Due</TableCell>
-                  <TableCell align="right" sx={{ fontWeight: 'bold' }}>Action</TableCell>
-                </TableRow>
-              </TableHead>
+            <TableHead>
+              <TableRow>
+                <TableCell
+                  onClick={() => requestSort('studentName')}
+                  sx={{ fontWeight: 'bold', cursor: 'pointer' }}
+                >
+                  Student
+                </TableCell>
+                <TableCell sx={{ fontWeight: 'bold' }}>Period</TableCell>
+                <TableCell
+                  onClick={() => requestSort('dueDate')}
+                  sx={{ fontWeight: 'bold', cursor: 'pointer' }}
+                >
+                  Due Date
+                </TableCell>
+                <TableCell
+                  onClick={() => requestSort('status')}
+                  sx={{ fontWeight: 'bold', cursor: 'pointer' }}
+                >
+                  Status
+                </TableCell>
+                <TableCell sx={{ fontWeight: 'bold' }}>Paid / Due</TableCell>
+                <TableCell align="right" sx={{ fontWeight: 'bold' }}>Action</TableCell>
+              </TableRow>
+            </TableHead>
             <TableBody>
-              {/* Use the new filtered and sorted array */}
               {filteredAndSortedFees.map(f => (
                 <TableRow key={f._id}>
                   <TableCell>{f.enrollment.student.name}</TableCell>
@@ -502,7 +462,6 @@ const ClassDetail = () => {
             </TableBody>
           </Table>
         )}
-        {/* ... (Pay dialog remains the same) ... */}
         <Dialog open={payDialog.open} onClose={() => setPayDialog({ open: false })}>
           <DialogTitle>Record a Payment</DialogTitle>
           <DialogContent>
@@ -527,6 +486,15 @@ const ClassDetail = () => {
           </DialogActions>
         </Dialog>
       </TabPanel>
+
+      {/* Unenroll Confirmation Dialog */}
+      <ConfirmDialog
+        open={unenrollConfirmOpen}
+        onClose={() => setUnenrollConfirmOpen(false)}
+        onConfirm={handleConfirmUnenroll}
+        title="Unenroll Student"
+        message="Are you sure you want to unenroll this student? This action cannot be undone."
+      />
     </Box>
   );
 };
