@@ -192,12 +192,12 @@ const DashboardReimagined = () => {
             >
             <CardContent orientation="horizontal">
                <CardCover>
-                <img
+                {/* <img
                   src="https://static.vecteezy.com/system/resources/thumbnails/007/550/615/small_2x/back-to-school-seamless-outline-pattern-free-vector.jpg"
                   loading="lazy"
                   alt=""
                   className='bgimage'
-                />
+                /> */}
               </CardCover>
               <CardContent>
                 <PieChart

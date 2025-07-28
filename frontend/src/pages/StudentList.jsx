@@ -179,7 +179,7 @@ const StudentList = () => {
             <TableRow>
               <TableCell className="table-header-cell">Name</TableCell>
               <TableCell className="table-header-cell">Email</TableCell>
-              <TableCell className="table-header-cell">Parent</TableCell>
+              <TableCell className="table-header-cell">Parent Email</TableCell>
               <TableCell className="table-header-cell" align="right">Actions</TableCell>
             </TableRow>
           </TableHead>
