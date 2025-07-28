@@ -14,6 +14,7 @@ import IconButton from '@mui/material/IconButton';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import GoogleIcon from '@mui/icons-material/Google';
+import Alert from '@mui/material/Alert';
 
 // Styles
 import '../styles/Login.css';
@@ -30,7 +31,9 @@ const Login = () => {
     password: ''
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
+  // const [error, setError] = useState('');
+  const [errors, setErrors] = useState({});
+
 
   const inputLabelStyle = {
     color: '#44210a',
@@ -55,8 +58,7 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError('');
-
+    setErrors({}); 
     try {
       const res = await api.post('/auth/login', {
         email: formData.email,
@@ -68,7 +70,9 @@ const Login = () => {
       login(res.data.token, res.data.user); 
       navigate('/dashboard'); // your dashboard route
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed');
+      // setError(err.response?.data?.message || 'Login failed');
+      setErrors({ general: err.response?.data?.message || 'Login failed. Please check your credentials.' });
+
     }
   };
   const handleGoogleSuccess = async (credentialResponse) => {
@@ -79,13 +83,13 @@ const Login = () => {
       navigate('/dashboard');
     } catch (err) {
       console.error('Google Login Failed', err);
-      setError('Google Sign-In failed. Please try again.');
+      setErrors({ general: 'Google Sign-In failed. Please try again.' });
     }
   };
 
   const handleGoogleError = () => {
     console.log('Login Failed');
-    setError('Google Sign-In failed. Please try again.');
+    setErrors({ general: 'Google Sign-In failed. Please try again.' });
   };
   return (
     <div style={{ display: 'flex', flexDirection: 'row', height: '100vh' }}>
@@ -97,6 +101,7 @@ const Login = () => {
 
         <FormControl sx={formControlStyle}>
           <Box component="form" onSubmit={handleLogin} noValidate>
+            
             <TextField
               required
               label="Email"
@@ -128,9 +133,10 @@ const Login = () => {
               }}
             />
 
-            {error && <p style={{ color: 'red' }}>{error}</p>}
+            {errors.general && <Alert severity="error" sx={{ mb: 2, borderRadius: '15px' }}>{errors.general}</Alert>}
 
             <a className='fgt-pwd' href='/forgot-password'>Forgot Password?</a>
+            <Box sx={{ display: 'flex', justifyContent: 'center' }}>
             <Button
               variant="contained"
               className="button-submit"
@@ -138,7 +144,9 @@ const Login = () => {
               sx={{ marginTop: 2 }}
             >
               Sign In
-            </Button>            
+            </Button> 
+            </Box>
+
           </Box>
 
           <div className="separator"><span>or continue with</span></div>

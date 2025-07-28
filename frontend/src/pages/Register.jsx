@@ -2,22 +2,21 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
-import { AuthContext } from '../contexts/AuthContext'; 
+import { AuthContext } from '../contexts/AuthContext';
 
 // MUI Components
-import { Box, FormControl, TextField, Button, InputAdornment, IconButton, Divider } from '@mui/material'; // Add Divider
-import { GoogleLogin } from '@react-oauth/google'; // Import GoogleLogin
+import { Box, FormControl, TextField, Button, InputAdornment, IconButton, Divider, Alert } from '@mui/material';
+import { GoogleLogin } from '@react-oauth/google';
 // Icons
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import GoogleIcon from '@mui/icons-material/Google';
 
 // Styles
 import '../styles/Login.css';
 
 const Register = () => {
   const navigate = useNavigate();
-  const { login } = useContext(AuthContext); // Get the login function
+  const { login } = useContext(AuthContext);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -25,7 +24,7 @@ const Register = () => {
     confirmPassword: ''
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
+  const [errors, setErrors] = useState({});
 
   const inputLabelStyle = {
     color: '#44210a',
@@ -47,26 +46,32 @@ const Register = () => {
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+
   const handleGoogleSuccess = async (credentialResponse) => {
     try {
       const idToken = credentialResponse.credential;
       const res = await api.post('/auth/googlesignin', { idToken });
-      login(res.data.token); // Log in the new user
+      login(res.data.token, res.data.user); // Pass both token and user
       navigate('/dashboard');
     } catch (err) {
       console.error('Google Sign-Up Failed', err);
-      // You might want a specific error state for this
+      setErrors({ general: 'Google Sign-In failed. Please try again.' });
     }
   };
 
   const handleGoogleError = () => {
     console.log('Google Sign-Up Failed');
+    setErrors({ general: 'Google Sign-In failed. Please try again.' });
   };
+
   const handleRegister = async (e) => {
     e.preventDefault();
+    setErrors({}); // Clear previous errors
 
+    // --- FIX #1: CORRECT PASSWORD MISMATCH CHECK ---
     if (formData.password !== formData.confirmPassword) {
-      return setError("Passwords do not match");
+      setErrors({ confirmPassword: "Passwords do not match" });
+      return;
     }
 
     try {
@@ -76,10 +81,21 @@ const Register = () => {
         password: formData.password
       });
 
-      localStorage.setItem('token', res.data.token);
-      navigate('/'); // or navigate to dashboard
+      login(res.data.token, res.data.user); // Pass both token and user
+      navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed');
+      // --- FIX #2: CORRECT ERROR HANDLING ---
+      if (err.response?.status === 400 && err.response.data.errors) {
+        // Handle specific validation errors from the backend
+        const backendErrors = {};
+        err.response.data.errors.forEach(error => {
+          backendErrors[error.path] = error.msg;
+        });
+        setErrors(backendErrors);
+      } else {
+        // Handle general errors like "User already exists"
+        setErrors({ general: err.response?.data?.message || 'Registration failed' });
+      }
     }
   };
 
@@ -92,7 +108,12 @@ const Register = () => {
         </div>
 
         <FormControl sx={formControlStyle}>
-          <Box  component="form" onSubmit={handleRegister} noValidate>
+          <Box component="form" onSubmit={handleRegister} noValidate>
+
+            {/* Display general errors */}
+            {errors.general && <Alert severity="error" sx={{ mb: 2, borderRadius: '15px' }}>{errors.general}</Alert>}
+
+            {/* --- FIX #3: ADD ERROR AND HELPERTEXT TO ALL FIELDS --- */}
             <TextField
               required
               label="Full Name"
@@ -101,6 +122,8 @@ const Register = () => {
               onChange={handleChange}
               className="input-field"
               sx={inputLabelStyle}
+              error={!!errors.name}
+              helperText={errors.name || ''}
             />
             <TextField
               required
@@ -110,6 +133,8 @@ const Register = () => {
               onChange={handleChange}
               className="input-field"
               sx={inputLabelStyle}
+              error={!!errors.email}
+              helperText={errors.email || ''}
             />
             <TextField
               required
@@ -120,6 +145,8 @@ const Register = () => {
               onChange={handleChange}
               className="input-field"
               sx={inputLabelStyle}
+              error={!!errors.password}
+              helperText={errors.password || ''}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
@@ -139,18 +166,28 @@ const Register = () => {
               onChange={handleChange}
               className="input-field"
               sx={inputLabelStyle}
+              error={!!errors.confirmPassword}
+              helperText={errors.confirmPassword || ''}
             />
 
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-              
-            <Button
+            {/* <Button
               variant="contained"
               className="button-submit"
               type="submit"
               sx={{ marginTop: 2 }}
             >
               Register
-            </Button>
+            </Button> */}
+            <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+              <Button
+                variant="contained"
+                className="button-submit"
+                type="submit"
+                sx={{ marginTop: 2 }}
+              >
+                Register
+              </Button>
+            </Box>
           </Box>
 
           <Divider sx={{ my: 2 }}>OR</Divider>
@@ -162,19 +199,8 @@ const Register = () => {
             />
           </Box>
 
-          {/* <div className="separator"><span>or continue with</span></div> */}
-
-          {/* <IconButton href='https://www.gmail.com'>
-            <GoogleIcon sx={{
-              color: 'white',
-              scale: 2,
-              bgcolor: '#4caf50',
-              borderRadius: '50%'
-            }} />
-          </IconButton> */}
-
           <div className='register'>
-            Already a Member? <a className='register-now' href='/'>Login</a>
+            Already a Member? <a className='register-now' href='/login'>Login</a>
           </div>
         </FormControl>
       </div>

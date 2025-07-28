@@ -32,7 +32,7 @@
     border-radius: 50px;
     margin: 20px;
     height: 50px;
-    left: 165px;
+    /* left: 165px; */
 }
 
 .MuiButton-root.button-submit:hover {

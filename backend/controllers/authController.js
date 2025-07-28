@@ -10,11 +10,13 @@ const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
  * @route   POST /api/auth/register
  * @access  Public
  */
+
+// backend/controllers/authController.js
+
 exports.register = async (req, res) => {
   try {
     const { name, email, password, phoneNumber, role } = req.body;
 
-    // Check if user already exists
     const userExists = await User.findOne({ email });
     if (userExists) {
       return res.status(400).json({
@@ -23,24 +25,65 @@ exports.register = async (req, res) => {
       });
     }
 
-    // Create user
     const user = await User.create({
       name,
       email,
       password,
       phoneNumber,
-      role: role || 'teacher' // Default to teacher if not specified
+      role: role || 'teacher'
     });
 
     sendTokenResponse(user, 201, res);
   } catch (error) {
+    // --- THIS IS THE UPDATED SECTION ---
+    // Check if it's a Mongoose validation error
+    if (error.name === 'ValidationError') {
+      const messages = Object.values(error.errors).map(val => ({
+        msg: val.message,
+        path: val.path
+      }));
+      return res.status(400).json({ success: false, errors: messages });
+    }
+
     console.error('Registration error:', error.message);
     res.status(500).json({
       success: false,
       message: 'Failed to register user'
     });
+    // --- END OF UPDATED SECTION ---
   }
 };
+// exports.register = async (req, res) => {
+//   try {
+//     const { name, email, password, phoneNumber, role } = req.body;
+
+//     // Check if user already exists
+//     const userExists = await User.findOne({ email });
+//     if (userExists) {
+//       return res.status(400).json({
+//         success: false,
+//         message: 'User with that email already exists'
+//       });
+//     }
+
+//     // Create user
+//     const user = await User.create({
+//       name,
+//       email,
+//       password,
+//       phoneNumber,
+//       role: role || 'teacher' // Default to teacher if not specified
+//     });
+
+//     sendTokenResponse(user, 201, res);
+//   } catch (error) {
+//     console.error('Registration error:', error.message);
+//     res.status(500).json({
+//       success: false,
+//       message: 'Failed to register user'
+//     });
+//   }
+// };
 
 /**
  * @desc    Login user
@@ -64,7 +107,7 @@ exports.login = async (req, res) => {
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid credentials'
+        message: 'No user found with that email address'
       });
     }
 
@@ -73,7 +116,7 @@ exports.login = async (req, res) => {
     if (!isMatch) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid credentials'
+        message: 'The password you entered is incorrect'
       });
     }
 

@@ -1,7 +1,8 @@
 // backend/controllers/studentController.js
 
 const Student = require('../models/Student');
-
+const Enrollment = require('../models/Enrollment');
+const FeeRecord = require('../models/FeeRecord');
 // @desc    Create a new student
 // @route   POST /api/students
 // @access  Private
@@ -143,5 +144,45 @@ exports.deleteStudent = async (req, res) => {
     res
       .status(500)
       .json({ success: false, message: 'Failed to delete student' });
+  }
+};
+
+/**
+ * @desc    Get a single student's complete profile
+ * @route   GET /api/students/:id/profile
+ * @access  Private
+ */
+exports.getStudentProfile = async (req, res) => {
+  try {
+    // 1. Find the student
+    const student = await Student.findOne({
+      _id: req.params.id,
+      createdBy: req.user.id,
+    });
+
+    if (!student) {
+      return res.status(404).json({ success: false, message: 'Student not found' });
+    }
+
+    // 2. Find all of that student's enrollments and populate the class details
+    const enrollments = await Enrollment.find({ student: req.params.id })
+      .populate('class', 'name subject grade');
+
+    // 3. Find all fee records associated with those enrollments
+    const enrollmentIds = enrollments.map(e => e._id);
+    const fees = await FeeRecord.find({ enrollment: { $in: enrollmentIds } })
+      .sort({ dueDate: -1 });
+
+    // 4. Combine all the data into a single profile object
+    const profileData = {
+      ...student.toObject(),
+      enrollments,
+      fees,
+    };
+
+    res.status(200).json({ success: true, data: profileData });
+  } catch (error) {
+    console.error('Get student profile error:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch student profile' });
   }
 };
