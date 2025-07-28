@@ -10,7 +10,8 @@ const {
   generateFees,
   getFeesForClass,
   getClassById,
-  updateClass
+  updateClass,
+  deleteClass,
 } = require('../controllers/classController');
 
 const { protect } = require('../middlewares/auth');
@@ -38,7 +39,13 @@ router.post('/:classId/generate-fees', generateFees);
 
 router.get('/:classId/fees', getFeesForClass);
 
-router.route('/:classId').get(getClassById).put(updateClass);
+// router.route('/:classId').get(getClassById).put(updateClass);
+
+router
+  .route('/:classId')
+  .get(getClassById)
+  .put(updateClass)
+  .delete(deleteClass);
 
 
 module.exports = router;

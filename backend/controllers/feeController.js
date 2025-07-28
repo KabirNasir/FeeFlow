@@ -2,6 +2,7 @@ const Enrollment = require('../models/Enrollment');
 const FeeRecord = require('../models/FeeRecord');
 const Class = require('../models/Class');
 const { generateFeesForMonth } = require('../services/feeService');
+const sendEmail = require('../utils/sendEmail');
 
 // @desc    Generate monthly fee records for active enrollments
 // @route   POST /api/fees/generate
@@ -310,3 +311,55 @@ exports.getFees = async (req, res) => {
 //         res.status(500).json({ success: false, message: 'Failed to generate fee records' });
 //     }
 // };
+
+/**
+ * @desc    Send a manual fee reminder email
+ * @route   POST /api/fees/:feeId/remind
+ * @access  Private
+ */
+exports.sendManualReminder = async (req, res) => {
+    try {
+        const fee = await FeeRecord.findById(req.params.feeId)
+            .populate({
+                path: 'enrollment',
+                populate: [
+                    { path: 'student', select: 'name parentInfo' },
+                    { path: 'class', select: 'name' }
+                ]
+            });
+
+        if (!fee) {
+            return res.status(404).json({ success: false, message: 'Fee record not found' });
+        }
+
+        const { parentInfo } = fee.enrollment.student;
+        if (!parentInfo || !parentInfo.email) {
+            return res.status(400).json({ success: false, message: 'Parent email not found for this student.' });
+        }
+
+        const amountDue = fee.amount - fee.amountPaid;
+        const message = `
+        Dear ${parentInfo.name},
+        This is a friendly reminder regarding the fee for ${fee.enrollment.student.name}'s enrollment in the class "${fee.enrollment.class.name}".
+        Amount Due: ₹${amountDue}
+        Due Date: ${fee.dueDate.toLocaleDateString()}
+        Thank you.
+      `;
+
+        await sendEmail({
+            email: parentInfo.email,
+            subject: `Fee Reminder for ${fee.enrollment.student.name}`,
+            message
+        });
+
+        // Log that a reminder was sent
+        fee.remindersSent.push({ status: 'sent' });
+        await fee.save();
+
+        res.status(200).json({ success: true, message: 'Reminder email sent successfully' });
+
+    } catch (error) {
+        console.error("Send manual reminder error:", error);
+        res.status(500).json({ success: false, message: 'Failed to send reminder' });
+    }
+  };

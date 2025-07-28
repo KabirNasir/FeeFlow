@@ -132,7 +132,7 @@ exports.getStudentsInClass = async (req, res) => {
             .populate('student');
 
         // Map to include student info and status
-        const students = enrollments.map(e => ({
+        const students = enrollments.filter(e => e.student !== null).map(e => ({
             ...e.student.toObject(),
             enrollmentStatus: e.status
         }));
@@ -391,3 +391,37 @@ exports.updateClass = async (req, res) => {
         res.status(500).json({ success: false, message: 'Failed to update class' });
     }
   };
+
+/**
+* @desc    Delete a class
+* @route   DELETE /api/classes/:classId
+* @access  Private
+*/
+exports.deleteClass = async (req, res) => {
+    try {
+        const course = await Class.findById(req.params.classId);
+
+        if (!course) {
+            return res.status(404).json({ success: false, message: 'Class not found' });
+        }
+
+        if (course.teacher.toString() !== req.user.id) {
+            return res.status(401).json({ success: false, message: 'Not authorized' });
+        }
+
+        // Find and delete all enrollments and their associated fees
+        const enrollments = await Enrollment.find({ class: req.params.classId });
+        const enrollmentIds = enrollments.map(e => e._id);
+
+        await FeeRecord.deleteMany({ enrollment: { $in: enrollmentIds } });
+        await Enrollment.deleteMany({ class: req.params.classId });
+
+        // Finally, delete the class itself
+        await course.deleteOne();
+
+        res.status(200).json({ success: true, data: {} });
+    } catch (error) {
+        console.error('Delete class error:', error);
+        res.status(500).json({ success: false, message: 'Failed to delete class' });
+    }
+};

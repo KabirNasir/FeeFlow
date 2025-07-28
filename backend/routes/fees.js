@@ -6,7 +6,8 @@ const {
     markFeeAsPaid,
     getClassFees,
     getStudentFees,
-    getFees
+    getFees,
+    sendManualReminder,
 } = require('../controllers/feeController');
 const { protect } = require('../middlewares/auth');
 
@@ -28,6 +29,8 @@ router.get('/class/:classId', getClassFees);
 router.get('/student/:studentId', getStudentFees);
 
 router.route('/').get(getFees); 
+router.post('/:feeId/remind', sendManualReminder);
+
 
 
 module.exports = router;

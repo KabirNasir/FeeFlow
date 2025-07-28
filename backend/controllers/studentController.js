@@ -123,6 +123,7 @@ exports.updateStudent = async (req, res) => {
 // @desc    Delete a student
 // @route   DELETE /api/students/:id
 // @access  Private
+
 exports.deleteStudent = async (req, res) => {
   try {
     const student = await Student.findOne({
@@ -136,7 +137,20 @@ exports.deleteStudent = async (req, res) => {
         .json({ success: false, message: 'Student not found' });
     }
 
-    await student.remove();
+    // --- THIS IS THE NEW LOGIC ---
+    // 1. Find all enrollments for this student
+    const enrollments = await Enrollment.find({ student: student._id });
+    const enrollmentIds = enrollments.map(e => e._id);
+
+    // 2. Delete all fee records associated with those enrollments
+    await FeeRecord.deleteMany({ enrollment: { $in: enrollmentIds } });
+
+    // 3. Delete all the enrollments
+    await Enrollment.deleteMany({ student: student._id });
+    
+    // 4. Finally, delete the student
+    await student.deleteOne();
+    // --- END OF NEW LOGIC ---
 
     res.status(200).json({ success: true, data: {} });
   } catch (error) {
@@ -146,6 +160,29 @@ exports.deleteStudent = async (req, res) => {
       .json({ success: false, message: 'Failed to delete student' });
   }
 };
+
+// exports.deleteStudent = async (req, res) => {
+//   try {
+//     const student = await Student.findOne({
+//       _id: req.params.id,
+//       createdBy: req.user.id,
+//     });
+
+//     if (!student) {
+//       return res
+//         .status(404)
+//         .json({ success: false, message: 'Student not found' });
+//     }
+
+//     await student.deleteOne(); 
+//     res.status(200).json({ success: true, data: {} });
+//   } catch (error) {
+//     console.error('Delete student error:', error.message);
+//     res
+//       .status(500)
+//       .json({ success: false, message: 'Failed to delete student' });
+//   }
+// };
 
 /**
  * @desc    Get a single student's complete profile

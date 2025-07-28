@@ -1,12 +1,17 @@
-import React, { useState, useEffect } from 'react';
+// import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+
 import api from '../services/api';
 import {
     Box, Typography, Grid, FormControl, InputLabel, Select, MenuItem,
-    Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, CircularProgress, Accordion, AccordionSummary, AccordionDetails, Dialog, DialogTitle, DialogContent, TextField, DialogActions, Button
+    Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, CircularProgress, Accordion, AccordionSummary, AccordionDetails, Dialog, DialogTitle, DialogContent, TextField, DialogActions, Button,IconButton
 } from '@mui/material';
 import '../styles/Layout.css';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-
+import { CSVLink } from 'react-csv';
+import DownloadIcon from '@mui/icons-material/Download';
+import EmailIcon from '@mui/icons-material/Email';
+import { toast } from 'react-toastify';
 const Fees = () => {
     const [fees, setFees] = useState([]);
     const [classes, setClasses] = useState([]);
@@ -22,8 +27,51 @@ const Fees = () => {
     const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
     const [selectedFee, setSelectedFee] = useState(null);
     const [amountToPay, setAmountToPay] = useState('');
+    const csvHeaders = [
+        { label: 'Student', key: 'studentName' },
+        { label: 'Class', key: 'className' },
+        { label: 'Period', key: 'period' },
+        { label: 'Status', key: 'status' },
+        { label: 'Amount Due', key: 'amount' },
+        { label: 'Amount Paid', key: 'amountPaid' },
+        { label: 'Due Date', key: 'dueDate' },
+    ];
 
-    const fetchFees = async () => {
+    const csvData = fees.map(fee => ({
+        studentName: fee.enrollment?.student?.name || 'N/A',
+        className: fee.enrollment?.class?.name || 'N/A',
+        period: `${fee.period.month}/${fee.period.year}`,
+        status: fee.status,
+        amount: fee.amount,
+        amountPaid: fee.amountPaid,
+        dueDate: new Date(fee.dueDate).toLocaleDateString(),
+      }));
+    const handleSendReminder = async (feeId) => {
+        try {
+            const res = await api.post(`/fees/${feeId}/remind`);
+            toast.success(res.data.message);
+        } catch (err) {
+            toast.error(err.response?.data?.message || "Failed to send reminder.");
+        }
+    };
+    // const fetchFees = async () => {
+    //     setLoading(true);
+    //     try {
+    //         const params = new URLSearchParams();
+    //         if (selectedClass) params.append('classId', selectedClass);
+    //         if (selectedStudent) params.append('studentId', selectedStudent);
+    //         if (selectedMonth) params.append('month', selectedMonth);
+    //         if (selectedYear) params.append('year', selectedYear);
+
+    //         const res = await api.get(`/fees?${params.toString()}`);
+    //         setFees(res.data.data);
+    //     } catch (error) {
+    //         console.error("Failed to fetch fees", error);
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
+    const fetchFees = useCallback(async () => {
         setLoading(true);
         try {
             const params = new URLSearchParams();
@@ -39,8 +87,7 @@ const Fees = () => {
         } finally {
             setLoading(false);
         }
-    };
-
+    }, [selectedClass, selectedStudent, selectedMonth, selectedYear]); // Dependencies for useCallback
     // Fetch initial data for filters
     useEffect(() => {
         const fetchInitialData = async () => {
@@ -59,11 +106,14 @@ const Fees = () => {
     }, []);
 
     // Fetch fees whenever a filter changes
+    // useEffect(() => {
+    //     // We simply call the main fetchFees function that already exists.
+    //     // This breaks the infinite loop.
+    //     fetchFees();
+    // }, [selectedClass, selectedStudent, selectedMonth, selectedYear]);
     useEffect(() => {
-        // We simply call the main fetchFees function that already exists.
-        // This breaks the infinite loop.
         fetchFees();
-    }, [selectedClass, selectedStudent, selectedMonth, selectedYear]);
+    }, [fetchFees]); 
     const feesByClass = fees.reduce((acc, fee) => {
         const className = fee.enrollment?.class?.name || 'Unknown Class';
         if (!acc[className]) {
@@ -100,7 +150,22 @@ const Fees = () => {
 
     return (
         <Box sx={{ p: 3 }}>
-            <Typography className="page-heading" variant="h4" sx={{ mb: 3 }}>Fee Records</Typography>
+            {/* <Typography className="page-heading" variant="h4" sx={{ mb: 3 }}>Fee Records</Typography> */}
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                <Typography className="page-heading" variant="h4">Fee Records</Typography>
+
+                {/* --- NEW: Add the Export Button --- */}
+                <CSVLink
+                    data={csvData}
+                    headers={csvHeaders}
+                    filename={`fee-records-${new Date().toISOString().slice(0, 10)}.csv`}
+                    style={{ textDecoration: 'none' }}
+                >
+                    <Button variant="outlined" startIcon={<DownloadIcon />}>
+                        Export to CSV
+                    </Button>
+                </CSVLink>
+            </Box>
 
             {/* Filter Controls */}
             <Paper sx={{ p: 2, mb: 3 }}>
@@ -188,9 +253,15 @@ const Fees = () => {
                                                 </TableCell>
                                                 <TableCell align="right">
                                                     {fee.status !== 'paid' && (
-                                                        <Button size="small" variant="outlined" onClick={() => openPaymentDialog(fee)}>
-                                                            Pay
-                                                        </Button>
+                                                        <>
+                                                            <Button size="small" variant="outlined" onClick={() => openPaymentDialog(fee)} sx={{ mr: 1 }}>
+                                                                Pay
+                                                            </Button>
+                                                            {/* --- NEW: Add the Reminder Button --- */}
+                                                            <IconButton size="small" onClick={() => handleSendReminder(fee._id)} title="Send Reminder">
+                                                                <EmailIcon fontSize="small" />
+                                                            </IconButton>
+                                                        </>
                                                     )}
                                                 </TableCell>
 
