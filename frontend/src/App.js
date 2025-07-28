@@ -24,12 +24,24 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import Fees from './pages/Fees';
 import Profile from './pages/Profile'
 import StudentProfile from './pages/StudentProfile';
-
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 function App() {
   const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
   return (
     <GoogleOAuthProvider clientId={googleClientId}>
     <AuthProvider>
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+        />
       <Routes>
         {/* when hitting “/” send to login */}
         <Route path="/" element={<Navigate to="/login" replace />} />

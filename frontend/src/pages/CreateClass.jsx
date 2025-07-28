@@ -23,7 +23,7 @@ import {
 } from '@mui/material';
 
 import '../styles/Layout.css'; // for .page-heading, .button-primary, etc.
-
+import { toast } from 'react-toastify';
 const DAYS = [
   'Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'
 ];
@@ -77,14 +77,19 @@ const CreateClass = () => {
 
     try {
       await api.post('/classes', form);
-      navigate('/dashboard');
+      toast.success('Class created successfully!');
+      navigate('/classes');
     } catch (err) {
       // if token expired or invalid, force logout
       if (err.response?.status === 401) {
         logout();
         navigate('/login');
       } else {
-        setError(err.response?.data?.message || 'Failed to create class');
+        const errorMessage = err.response?.data?.message || 'Failed to create class';
+        // 3. (Optional) Show an error toast
+        toast.error(errorMessage);
+        setError(errorMessage);
+        // setError(err.response?.data?.message || 'Failed to create class');
       }
     } finally {
       setSubmitting(false);

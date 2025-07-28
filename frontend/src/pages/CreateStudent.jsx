@@ -16,7 +16,7 @@ import {
 } from '@mui/material';
 
 import '../styles/Layout.css';
-
+import { toast } from 'react-toastify'
 const CreateStudent = () => {
   const { logout } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -59,6 +59,7 @@ const CreateStudent = () => {
 
     try {
       await api.post('/students', form);
+      toast.success('Student created successfully!');
       navigate('/students');
     } catch (err) {
       // if (err.response?.status === 401) {
@@ -78,7 +79,10 @@ const CreateStudent = () => {
         logout();
         navigate('/login');
       } else {
-        setErrors({ general: err.response?.data?.message || 'Failed to create student' });
+        // setErrors({ general: err.response?.data?.message || 'Failed to create student' });
+        const errorMessage = err.response?.data?.message || 'Failed to create student';
+        toast.error(errorMessage);
+        setErrors({ general: errorMessage });
       }
     } finally {
       setSubmitting(false);

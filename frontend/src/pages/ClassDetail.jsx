@@ -32,6 +32,7 @@ import {
   IconButton,
   TextField,
 } from '@mui/material';
+
 import PaymentIcon from '@mui/icons-material/Payment';
 import Breadcrumbs from '@mui/joy/Breadcrumbs';
 import Link from '@mui/joy/Link';
@@ -71,6 +72,8 @@ const ClassDetail = () => {
 
   const [payDialog, setPayDialog] = useState({ open: false, feeId: null });
   const [payAmount, setPayAmount] = useState('');
+  const [sortConfig, setSortConfig] = useState({ key: 'dueDate', direction: 'descending' });
+  const [filterStudent, setFilterStudent] = useState('');
 
   // fetch enrolled students when component mounts
   useEffect(() => {
@@ -169,6 +172,56 @@ const ClassDetail = () => {
       }
     }
   };
+  // Sorting logic
+  // const sortedFees = React.useMemo(() => {
+  //   let sortableFees = [...fees];
+  //   if (sortConfig !== null) {
+  //     sortableFees.sort((a, b) => {
+  //       if (a[sortConfig.key] < b[sortConfig.key]) {
+  //         return sortConfig.direction === 'ascending' ? -1 : 1;
+  //       }
+  //       if (a[sortConfig.key] > b[sortConfig.key]) {
+  //         return sortConfig.direction === 'ascending' ? 1 : -1;
+  //       }
+  //       return 0;
+  //     });
+  //   }
+  //   return sortableFees;
+  // }, [fees, sortConfig]);
+
+  const sortedFees = React.useMemo(() => {
+    let sortableFees = [...fees];
+    if (sortConfig.key) {
+      sortableFees.sort((a, b) => {
+        // Access nested student name correctly
+        const aValue = sortConfig.key === 'studentName' ? a.enrollment.student.name : a[sortConfig.key];
+        const bValue = sortConfig.key === 'studentName' ? b.enrollment.student.name : b[sortConfig.key];
+
+        if (aValue < bValue) {
+          return sortConfig.direction === 'ascending' ? -1 : 1;
+        }
+        if (aValue > bValue) {
+          return sortConfig.direction === 'ascending' ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+    return sortableFees;
+  }, [fees, sortConfig]);
+
+  // Filtering logic
+  const filteredAndSortedFees = sortedFees.filter(fee => {
+    if (!filterStudent) return true;
+    return fee.enrollment.student._id === filterStudent;
+  });
+
+  const requestSort = (key) => {
+    let direction = 'ascending';
+    if (sortConfig.key === key && sortConfig.direction === 'ascending') {
+      direction = 'descending';
+    }
+    setSortConfig({ key, direction });
+  };
 
   // Group students by status
   const activeStudents = students.filter(s => s.enrollmentStatus === 'active');
@@ -186,7 +239,7 @@ const ClassDetail = () => {
           <Link component={RouterLink} to="/dashboard">
             Dashboard
           </Link>
-          <Link component={RouterLink} to="/dashboard">
+          <Link component={RouterLink} to="/classes">
             Your Classes
           </Link>
           <Typography color="text.primary">
@@ -195,7 +248,33 @@ const ClassDetail = () => {
         </Breadcrumbs>
       )
       }
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      {classInfo && (
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+          {/* <Box>
+            <Typography className="page-heading">{classInfo.name}</Typography>
+            <Typography color="text.secondary">
+              Fee: ₹{classInfo.fees.amount} ({classInfo.fees.frequency})
+            </Typography>
+          </Box> */}
+          <Box>
+            <Typography variant="h4" component="h1" sx={{ fontWeight: 'bold' }}>
+              {classInfo.name} - Grade {classInfo.grade}
+            </Typography>
+            <Typography variant="h6" color="text.secondary">
+              Fee: ₹{classInfo.fees.amount} ({classInfo.fees.frequency})
+            </Typography>
+          </Box>
+          <Button
+            className="button-primary"
+            onClick={() => navigate(`/classes/${classId}/edit`)}
+            startDecorator={<EditIcon />}
+          >
+            Edit Class
+          </Button>
+        </Box>
+      )}
+
+      {/* <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Typography className="page-heading">Class Detail</Typography>
         <Button
           className="button-primary"
@@ -204,7 +283,7 @@ const ClassDetail = () => {
         >
           Edit Class
         </Button>
-      </Box>
+      </Box> */}
 
       <Tabs value={tab} onChange={(e, v) => setTab(v)} sx={{ mb: 2 }}>
         <Tab label="Students" />
@@ -332,7 +411,22 @@ const ClassDetail = () => {
 
       {/* ================= FEES TAB ================= */}
       <TabPanel value={tab} index={1}>
-        <Box sx={{ mb: 2, display: 'flex', justifyContent: 'flex-end' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+          {/* Student Filter Dropdown */}
+          <FormControl sx={{ minWidth: 200 }} size="small">
+            <InputLabel>Filter by Active Student</InputLabel>
+            <Select
+              value={filterStudent}
+              label="Filter by Active Student"
+              onChange={(e) => setFilterStudent(e.target.value)}
+            >
+              <MenuItem value=""><em>All Students</em></MenuItem>
+              {activeStudents.map(s => (
+                <MenuItem key={s._id} value={s._id}>{s.name}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
           <Button
             className="button-primary"
             onClick={async () => {
@@ -349,35 +443,55 @@ const ClassDetail = () => {
           <Box sx={{ textAlign: 'center', mt: 4 }}><CircularProgress /></Box>
         ) : (
           <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Student</TableCell>
-                <TableCell>Period</TableCell>
-                <TableCell>Due Date</TableCell>
-                <TableCell>Paid / Due</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell align="right">Action</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {fees.map(f => (
-                <TableRow key={f._id}>
-                  <TableCell>
-                    {f.enrollment.student.name}
+            {/* <TableHead> */}
+              {/* <TableRow> */}
+                {/* Make TableCell headers clickable */}
+                {/* <TableCell onClick={() => requestSort('studentName')}>Student</TableCell> */}
+                {/* <TableCell>Period</TableCell> */}
+                {/* <TableCell onClick={() => requestSort('dueDate')}>Due Date</TableCell> */}
+                {/* <TableCell onClick={() => requestSort('status')}>Status</TableCell> */}
+                {/* <TableCell>Paid / Due</TableCell> */}
+                {/* <TableCell align="right">Action</TableCell> */}
+              {/* </TableRow> */}
+            {/* </TableHead> */}
+              <TableHead>
+                <TableRow>
+                  <TableCell
+                    onClick={() => requestSort('studentName')}
+                    sx={{ fontWeight: 'bold', cursor: 'pointer' }}
+                  >
+                    Student
                   </TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Period</TableCell>
+                  <TableCell
+                    onClick={() => requestSort('dueDate')}
+                    sx={{ fontWeight: 'bold', cursor: 'pointer' }}
+                  >
+                    Due Date
+                  </TableCell>
+                  <TableCell
+                    onClick={() => requestSort('status')}
+                    sx={{ fontWeight: 'bold', cursor: 'pointer' }}
+                  >
+                    Status
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Paid / Due</TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 'bold' }}>Action</TableCell>
+                </TableRow>
+              </TableHead>
+            <TableBody>
+              {/* Use the new filtered and sorted array */}
+              {filteredAndSortedFees.map(f => (
+                <TableRow key={f._id}>
+                  <TableCell>{f.enrollment.student.name}</TableCell>
                   <TableCell>{f.period.month}/{f.period.year}</TableCell>
                   <TableCell>
-                    {/* {new Date(f.dueDate).toLocaleDateString()} */}
                     {new Date(f.dueDate).toLocaleDateString('en-US', {
-                      day: 'numeric',
-                      month: 'long',
-                      year: 'numeric',
+                      day: 'numeric', month: 'long', year: 'numeric',
                     })}
                   </TableCell>
-                  <TableCell>
-                    {f.amountPaid} / {f.amount}
-                  </TableCell>
                   <TableCell>{f.status}</TableCell>
+                  <TableCell>₹{f.amountPaid} / ₹{f.amount}</TableCell>
                   <TableCell align="right">
                     <IconButton onClick={() => openPayDialog(f)}>
                       <PaymentIcon />
@@ -388,8 +502,7 @@ const ClassDetail = () => {
             </TableBody>
           </Table>
         )}
-
-        {/* Pay dialog */}
+        {/* ... (Pay dialog remains the same) ... */}
         <Dialog open={payDialog.open} onClose={() => setPayDialog({ open: false })}>
           <DialogTitle>Record a Payment</DialogTitle>
           <DialogContent>

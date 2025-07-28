@@ -32,7 +32,7 @@ const navItems = [
   { text: 'Dashboard', icon: <DashboardIcon sx={{ color: 'var(--white)' }} />, path: '/dashboard' },
   // { text: 'Your Classes', icon: <ClassIcon />, path: '/dashboard' }, // same as dashboard
   { text: 'Students', icon: <GroupIcon sx={{ color: 'var(--white)' }} />, path: '/students' },
-  { text: 'Class', icon: <ClassIcon sx={{ color: 'var(--white)' }} />, path: '/classes' },
+  { text: 'Classes', icon: <ClassIcon sx={{ color: 'var(--white)' }} />, path: '/classes' },
   { text: 'Fees', icon: <ReceiptIcon sx={{ color: 'var(--white)' }} />, path: '/fees' },
 ];
 
