@@ -1,9 +1,12 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import api from '../services/api';
 import { AuthContext } from '../contexts/AuthContext';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import ConfirmDialog from '../components/ConfirmDialog';
+import EnrollDialog from '../components/EnrollDialog';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import {
   Box,
   Typography,
@@ -14,18 +17,11 @@ import {
   TableCell,
   TableBody,
   Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   CircularProgress,
   IconButton,
   TextField,
   InputAdornment,
+  Link
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -41,12 +37,14 @@ const StudentList = () => {
   const [classes, setClasses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [selectedStudent, setSelectedStudent] = useState('');
-  const [selectedClass, setSelectedClass] = useState('');
   const [error, setError] = useState('');
+
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [studentToDelete, setStudentToDelete] = useState(null);
+
+  const [enrollDialogOpen, setEnrollDialogOpen] = useState(false);
+  const [initialStudentIds, setInitialStudentIds] = useState([]);
+
 
   // fetch students + classes
   useEffect(() => {
@@ -56,7 +54,6 @@ const StudentList = () => {
           api.get('/students'),
           api.get('/classes')
         ]);
-        // Assuming the API returns data in a 'data' property
         setStudents(stuRes.data.data || stuRes.data);
         setClasses(clsRes.data.data || clsRes.data);
       } catch (err) {
@@ -72,20 +69,20 @@ const StudentList = () => {
     })();
   }, [logout, navigate]);
 
-  const openEnroll = (stuId) => {
-    setSelectedStudent(stuId);
-    setDialogOpen(true);
+  const openEnrollDialog = (stuId) => {
+    setInitialStudentIds(stuId ? [stuId] : []);
+    setEnrollDialogOpen(true);
   };
 
-  const handleEnroll = async () => {
+  const handleEnroll = async ({ classId, studentIds }) => {
     try {
-      await api.post(`/classes/${selectedClass}/enroll`, {
-        studentId: selectedStudent
-      });
-      setDialogOpen(false);
-      // Maybe add a success message here
+      // *** CHANGE 1: Corrected the API endpoint to handle multiple students ***
+      await api.post(`/classes/${classId}/enroll-multiple`, { studentIds });
+      setEnrollDialogOpen(false);
+      toast.success('Student(s) enrolled successfully!');
     } catch (err) {
-      setError('Failed to enroll student.');
+      toast.error("Failed to enroll student(s).")
+      setError('Failed to enroll student(s).');
       console.error(err);
     }
   };
@@ -100,7 +97,9 @@ const StudentList = () => {
       try {
         await api.delete(`/students/${studentToDelete}`);
         setStudents(students.filter((student) => student._id !== studentToDelete));
+        toast.success('Student deleted successfully.');
       } catch (err) {
+        toast.error('Failed to delete student.');
         setError('Failed to delete student.');
         console.error(err);
       } finally {
@@ -125,19 +124,38 @@ const StudentList = () => {
 
   return (
     <Box sx={{ p: 3 }}>
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
         <Typography variant="h4" className="page-heading">All Students</Typography>
-        <Button
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          {/* *** CHANGE 2: Added a button for bulk enrollment *** */}
+          <Button
+            className="button-primary"
+            onClick={() => openEnrollDialog()}
+          >
+            Enroll Students
+          </Button>
+          <Button
           className="button-primary"
           onClick={() => navigate('/students/new')}
-        >
-          New Student
-        </Button>
+          >
+            New Student
+          </Button>
+        </Box>
       </Box>
 
-      {error && <Typography color="error">{error}</Typography>}
+      {error && <Typography color="error" sx={{ mb: 2 }}>{error}</Typography>}
 
-      {/* Search Bar */}
       <Paper sx={{ p: 2, mb: 3 }}>
         <TextField
           fullWidth
@@ -155,7 +173,6 @@ const StudentList = () => {
         />
       </Paper>
 
-      {/* Student Table */}
       <Paper>
         <Table className='student-table' sx={{ marginTop: '2rem' }}>
           <TableHead>
@@ -169,11 +186,7 @@ const StudentList = () => {
           <TableBody>
             {filteredStudents.map((stu) => (
               <TableRow key={stu._id} hover>
-                {/* <TableCell className='table-body-cell'>
-                  <Link to={`/students/${stu._id}`} className="student-name-link">
-                    {stu.name}
-                  </Link>
-                </TableCell> */}
+         
                 <TableCell className='table-body-cell'>{stu.name}</TableCell>
 
                 <TableCell className='table-body-cell'>{stu.email || '—'}</TableCell>
@@ -181,7 +194,7 @@ const StudentList = () => {
                 <TableCell align="right">
                   <Button className='student-table-actions'
                     size="small"
-                    onClick={() => openEnroll(stu._id)}
+                    onClick={() => openEnrollDialog(stu._id)}
                   >
                     Enroll
                   </Button>
@@ -208,38 +221,15 @@ const StudentList = () => {
         </Table>
       </Paper>
 
-      {/* Enroll Dialog */}
-      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
-        <DialogTitle>Enroll Student in Class</DialogTitle>
-        <DialogContent>
-          <FormControl fullWidth>
-            <InputLabel>Class</InputLabel>
-            <Select
-              value={selectedClass}
-              label="Class"
-              onChange={e => setSelectedClass(e.target.value)}
-            >
-              {classes.map((cls) => (
-                <MenuItem key={cls._id} value={cls._id}>
-                  {cls.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDialogOpen(false)}>Cancel</Button>
-          <Button
-            variant="contained"
-            disabled={!selectedClass}
-            onClick={handleEnroll}
-          >
-            Enroll
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <EnrollDialog
+        open={enrollDialogOpen}
+        onClose={() => setEnrollDialogOpen(false)}
+        onEnroll={handleEnroll}
+        studentsList={students}
+        classList={classes}
+        initialSelectedStudentIds={initialStudentIds}
+      />
 
-      {/* Delete Confirmation Dialog */}
       <ConfirmDialog
         open={confirmOpen}
         onClose={() => setConfirmOpen(false)}

@@ -252,7 +252,7 @@ const Fees = () => {
                                                     {new Date(fee.dueDate).toLocaleDateString('default', { year: 'numeric', month: 'long', day: 'numeric' })}
                                                 </TableCell>
                                                 <TableCell align="right">
-                                                    {fee.status !== 'paid' && (
+                                                    {fee.status !== 'Paid' && (
                                                         <>
                                                             <Button size="small" variant="outlined" onClick={() => openPaymentDialog(fee)} sx={{ mr: 1 }}>
                                                                 Pay

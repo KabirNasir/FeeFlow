@@ -105,9 +105,9 @@ const ReportDetail = () => {
                         </Button>
                     </CSVLink>
                 </Box>
-                <Typography variant="h4" className="page-heading" gutterBottom>
+                {/* <Typography variant="h4" className="page-heading" gutterBottom>
                     {report.title}
-                </Typography>
+                </Typography> */}
                 <Typography variant="subtitle1" color="text.secondary" sx={{ mb: 2 }}>
                     Generated on: {new Date(report.createdAt).toLocaleString()}
                 </Typography>
@@ -174,30 +174,6 @@ const ReportDetail = () => {
                         </AccordionDetails>
                     </Accordion>
                 ))}
-                {/* <TableContainer component={Paper}>
-                    <Table>
-                        <TableHead>
-                            <TableRow>
-                                <TableCell>Student Name</TableCell>
-                                <TableCell>Status</TableCell>
-                                <TableCell>Amount Paid</TableCell>
-                                <TableCell>Amount Due</TableCell>
-                                <TableCell>Due Date</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {feeDetails.map((fee, index) => (
-                                <TableRow key={index}>
-                                    <TableCell>{fee.studentName}</TableCell>
-                                    <TableCell>{fee.status}</TableCell>
-                                    <TableCell>{fee.amountPaid}</TableCell>
-                                    <TableCell>{fee.amountDue}</TableCell>
-                                    <TableCell>{new Date(fee.dueDate).toLocaleDateString()}</TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </TableContainer> */}
             </Paper>
         </Box>
     );

@@ -32,8 +32,8 @@ const FeeRecordSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['unpaid', 'paid', 'partially_paid', 'overdue', 'waived'],
-    default: 'unpaid'
+    enum: ['Unpaid', 'Paid', 'Partially Paid', 'overdue', 'waived'],
+    default: 'Unpaid'
   },
   payment: {
     type: mongoose.Schema.Types.ObjectId,

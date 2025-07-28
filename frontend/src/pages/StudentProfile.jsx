@@ -124,35 +124,6 @@ const StudentProfile = () => {
                             </Box>
                         )}
 
-                        {/* Fee History Tab */}
-                        {/* {tabIndex === 1 && (
-                            <TableContainer sx={{ mt: 2 }}>
-                                <Table>
-                                    <TableHead>
-                                        <TableRow>
-                                            <TableCell>Class</TableCell>
-                                            <TableCell>Period</TableCell>
-                                            <TableCell>Status</TableCell>
-                                            <TableCell align="right">Amount</TableCell>
-                                        </TableRow>
-                                    </TableHead>
-                                    <TableBody>
-                                        {profile.fees.map(fee => (
-                                            <TableRow key={fee._id}>
-                                                <TableCell>
-                                                    {profile.enrollments.find(e => e._id === fee.enrollment)?.class.name || 'N/A'}
-                                                </TableCell>
-                                                <TableCell>{fee.period.month}/{fee.period.year}</TableCell>
-                                                <TableCell>
-                                                    <Chip label={fee.status} size="small" color={fee.status === 'paid' ? 'success' : (fee.status === 'unpaid' ? 'error' : 'warning')} />
-                                                </TableCell>
-                                                <TableCell align="right">₹{fee.amount}</TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </TableContainer>
-                        )} */}
 
                         {tabIndex === 1 && (
                             <Box sx={{ pt: 2 }}>
@@ -179,12 +150,12 @@ const StudentProfile = () => {
                                                             <TableRow key={fee._id}>
                                                                 <TableCell>{fee.period.month}/{fee.period.year}</TableCell>
                                                                 <TableCell>
-                                                                    <Chip label={fee.status} size="small" color={fee.status === 'paid' ? 'success' : (fee.status.includes('unpaid') ? 'error' : 'warning')} />
+                                                                    <Chip label={fee.status} size="small" color={fee.status === 'Paid' ? 'success' : (fee.status.includes('Unpaid') ? 'error' : 'warning')} />
                                                                 </TableCell>
                                                                 <TableCell>₹{fee.amount}</TableCell>
                                                                 <TableCell>₹{fee.amountPaid}</TableCell>
                                                                 <TableCell align="right">
-                                                                    {fee.status !== 'paid' && (
+                                                                    {fee.status !== 'Paid' && (
                                                                         <Button size="small" onClick={() => openPaymentDialog(fee)}>
                                                                             Pay
                                                                         </Button>

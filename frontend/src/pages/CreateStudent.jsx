@@ -12,7 +12,6 @@ import {
   Button,
   Paper,
   Alert,
-  CircularProgress
 } from '@mui/material';
 
 import '../styles/Layout.css';

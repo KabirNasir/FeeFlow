@@ -11,7 +11,9 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Button from '@mui/joy/Button';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
-import ConfirmDialog from '../components/ConfirmDialog'; // Import the new component
+import ConfirmDialog from '../components/ConfirmDialog';
+import { ToastContainer, toast } from 'react-toastify'; // 1. Import toast
+import 'react-toastify/dist/ReactToastify.css';
 import '../styles/Layout.css';
 
 const Classes = () => {
@@ -32,6 +34,7 @@ const Classes = () => {
         const res = await api.get('/classes');
         setClasses(res.data.data);
       } catch (err) {
+        toast.error("Failed to fetch classes."); // Error toast for fetch
         if (err.response?.status === 401) {
           logout();
           navigate('/login');
@@ -53,8 +56,11 @@ const Classes = () => {
       try {
         await api.delete(`/classes/${classToDelete}`);
         setClasses(currentClasses => currentClasses.filter(c => c._id !== classToDelete));
+        toast.success('Class deleted successfully!'); // 2. Add success toast
       } catch (err) {
+        toast.error("Failed to delete class."); // 3. Add error toast
         setError("Failed to delete class.");
+
         console.error("Failed to delete class:", err);
       } finally {
         setConfirmOpen(false);
@@ -78,6 +84,18 @@ const Classes = () => {
 
   return (
     <Box sx={{ p: 3 }}>
+      {/* 4. Add ToastContainer */}
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Typography className="page-heading" variant="h4">All Classes</Typography>
         <Button

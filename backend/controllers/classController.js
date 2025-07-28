@@ -499,3 +499,84 @@ exports.deleteClass = async (req, res) => {
         res.status(500).json({ success: false, message: 'Failed to delete class' });
     }
 };
+// @desc    Enroll multiple students in a class
+// @route   POST /api/classes/:classId/enroll-multiple
+// @access  Private
+exports.enrollMultipleStudentsInClass = async (req, res) => {
+    const { classId } = req.params;
+    // Expect an array of student IDs from the frontend
+    const { studentIds } = req.body;
+
+    if (!studentIds || !Array.isArray(studentIds) || studentIds.length === 0) {
+        return res.status(400).json({ success: false, message: 'An array of student IDs is required.' });
+    }
+
+    try {
+        const existingClass = await Class.findById(classId);
+        if (!existingClass) {
+            return res.status(404).json({ success: false, message: 'Class not found' });
+        }
+
+        const results = [];
+        const now = new Date();
+        const month = now.getMonth() + 1;
+        const year = now.getFullYear();
+
+        // Loop through each student ID and enroll them
+        for (const studentId of studentIds) {
+            const existingStudent = await Student.findById(studentId);
+            if (!existingStudent) {
+                results.push({ studentId, success: false, message: 'Student not found.' });
+                continue; // Skip to the next student
+            }
+
+            let finalEnrollment;
+            const existingEnrollment = await Enrollment.findOne({ class: classId, student: studentId });
+
+            if (existingEnrollment) {
+                if (existingEnrollment.status === 'active') {
+                    results.push({ studentId, success: true, message: 'Student is already enrolled and active.' });
+                    continue; // Already active, so skip to the next student
+                }
+                // If enrollment exists but is inactive, reactivate it
+                existingEnrollment.status = 'active';
+                existingEnrollment.joinedOn = new Date();
+                await existingEnrollment.save();
+                finalEnrollment = existingEnrollment;
+            } else {
+                // Otherwise, create a brand new enrollment
+                const newEnrollment = await Enrollment.create({ class: classId, student: studentId });
+                finalEnrollment = newEnrollment;
+            }
+
+            // Your existing fee generation logic
+            const feeExists = await FeeRecord.findOne({
+                enrollment: finalEnrollment._id,
+                'period.month': month,
+                'period.year': year
+            });
+
+            if (!feeExists) {
+                const dueDate = new Date(year, month - 1, existingClass.fees.dueDay || 1);
+                await FeeRecord.create({
+                    enrollment: finalEnrollment._id,
+                    amount: existingClass.fees.amount,
+                    currency: existingClass.fees.currency,
+                    dueDate,
+                    period: { month, year }
+                });
+            }
+            results.push({ studentId, success: true, message: 'Student enrolled successfully.' });
+        }
+
+        res.status(201).json({
+            success: true,
+            message: 'Enrollment process completed.',
+            data: results
+        });
+
+    } catch (error) {
+        console.error('Error enrolling multiple students:', error.message);
+        res.status(500).json({ success: false, message: 'Server failed to enroll students' });
+    }
+};

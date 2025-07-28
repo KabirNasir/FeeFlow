@@ -9,7 +9,7 @@ const sendFeeReminders = async () => {
         const today = new Date();
         // Find fees that are unpaid or partially paid
         const feesToRemind = await FeeRecord.find({
-            status: { $in: ['unpaid', 'partially_paid', 'overdue'] },
+            status: { $in: ['Unpaid', 'Partially Paid', 'overdue'] },
             dueDate: { $lte: new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000) }
         }).populate({
             path: 'enrollment',

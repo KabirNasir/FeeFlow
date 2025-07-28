@@ -252,8 +252,7 @@ const ClassDetail = () => {
             </Typography>
           </Box>
           <Button
-            variant="contained"
-            color="primary"
+            className="button-primary" 
             onClick={() => navigate(`/classes/${classId}/edit`)}
             startIcon={<EditIcon />}
           >

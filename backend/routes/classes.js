@@ -12,6 +12,7 @@ const {
   getClassById,
   updateClass,
   deleteClass,
+  enrollMultipleStudentsInClass
 } = require('../controllers/classController');
 
 const { protect } = require('../middlewares/auth');
@@ -38,6 +39,7 @@ router.put('/:classId/unenroll', unenrollStudentFromClass);
 router.post('/:classId/generate-fees', generateFees);
 
 router.get('/:classId/fees', getFeesForClass);
+router.route('/:classId/enroll-multiple').post(enrollMultipleStudentsInClass);
 
 // router.route('/:classId').get(getClassById).put(updateClass);
 
