@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 import {
     Box, Typography, Grid, FormControl, InputLabel, Select, MenuItem,
-    Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, CircularProgress
+    Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, CircularProgress, Accordion, AccordionSummary, AccordionDetails, Dialog, DialogTitle, DialogContent, TextField, DialogActions, Button
 } from '@mui/material';
 import '../styles/Layout.css';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 
 const Fees = () => {
     const [fees, setFees] = useState([]);
@@ -17,6 +18,28 @@ const Fees = () => {
     const [selectedStudent, setSelectedStudent] = useState('');
     const [selectedMonth, setSelectedMonth] = useState('');
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+
+    const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
+    const [selectedFee, setSelectedFee] = useState(null);
+    const [amountToPay, setAmountToPay] = useState('');
+
+    const fetchFees = async () => {
+        setLoading(true);
+        try {
+            const params = new URLSearchParams();
+            if (selectedClass) params.append('classId', selectedClass);
+            if (selectedStudent) params.append('studentId', selectedStudent);
+            if (selectedMonth) params.append('month', selectedMonth);
+            if (selectedYear) params.append('year', selectedYear);
+
+            const res = await api.get(`/fees?${params.toString()}`);
+            setFees(res.data.data);
+        } catch (error) {
+            console.error("Failed to fetch fees", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     // Fetch initial data for filters
     useEffect(() => {
@@ -37,25 +60,43 @@ const Fees = () => {
 
     // Fetch fees whenever a filter changes
     useEffect(() => {
-        const fetchFees = async () => {
-            setLoading(true);
-            try {
-                const params = new URLSearchParams();
-                if (selectedClass) params.append('classId', selectedClass);
-                if (selectedStudent) params.append('studentId', selectedStudent);
-                if (selectedMonth) params.append('month', selectedMonth);
-                if (selectedYear) params.append('year', selectedYear);
-
-                const res = await api.get(`/fees?${params.toString()}`);
-                setFees(res.data.data);
-            } catch (error) {
-                console.error("Failed to fetch fees", error);
-            } finally {
-                setLoading(false);
-            }
-        };
+        // We simply call the main fetchFees function that already exists.
+        // This breaks the infinite loop.
         fetchFees();
     }, [selectedClass, selectedStudent, selectedMonth, selectedYear]);
+    const feesByClass = fees.reduce((acc, fee) => {
+        const className = fee.enrollment?.class?.name || 'Unknown Class';
+        if (!acc[className]) {
+            acc[className] = [];
+        }
+        acc[className].push(fee);
+        return acc;
+    }, {});
+
+    const openPaymentDialog = (fee) => {
+        setSelectedFee(fee);
+        setAmountToPay(fee.amount - fee.amountPaid);
+        setPaymentDialogOpen(true);
+    };
+
+    const handleClosePaymentDialog = () => {
+        setPaymentDialogOpen(false);
+        setSelectedFee(null);
+        setAmountToPay('');
+    };
+
+    const handleRecordPayment = async () => {
+        if (!selectedFee || amountToPay <= 0) return;
+        try {
+            await api.put(`/fees/${selectedFee._id}/pay`, {
+                amountPaid: Number(amountToPay)
+            });
+            await fetchFees(); // Refresh the fee list
+            handleClosePaymentDialog();
+        } catch (err) {
+            console.error("Failed to record payment", err);
+        }
+    };
 
     return (
         <Box sx={{ p: 3 }}>
@@ -63,18 +104,19 @@ const Fees = () => {
 
             {/* Filter Controls */}
             <Paper sx={{ p: 2, mb: 3 }}>
-                <Grid container spacing={2}>
-                    <Grid item xs={12} sm={3}>
-                        <FormControl fullWidth>
+                <Grid container spacing={2} alignItems="center">
+                    <Grid item xs={12} sm={6} md={3}>
+                        <FormControl fullWidth sx={{ minWidth: 180 }}>
                             <InputLabel>Class</InputLabel>
+
                             <Select value={selectedClass} label="Class" onChange={e => setSelectedClass(e.target.value)}>
                                 <MenuItem value=""><em>All Classes</em></MenuItem>
                                 {classes.map(c => <MenuItem key={c._id} value={c._id}>{c.name}</MenuItem>)}
                             </Select>
                         </FormControl>
                     </Grid>
-                    <Grid item xs={12} sm={3}>
-                        <FormControl fullWidth>
+                    <Grid item xs={12} sm={6} md={3}>
+                        <FormControl fullWidth sx={{ minWidth: 180 }}>
                             <InputLabel>Student</InputLabel>
                             <Select value={selectedStudent} label="Student" onChange={e => setSelectedStudent(e.target.value)}>
                                 <MenuItem value=""><em>All Students</em></MenuItem>
@@ -82,8 +124,8 @@ const Fees = () => {
                             </Select>
                         </FormControl>
                     </Grid>
-                    <Grid item xs={12} sm={3}>
-                        <FormControl fullWidth>
+                    <Grid item xs={12} sm={6} md={3}>
+                        <FormControl fullWidth sx={{ minWidth: 180 }}>
                             <InputLabel>Month</InputLabel>
                             <Select value={selectedMonth} label="Month" onChange={e => setSelectedMonth(e.target.value)}>
                                 <MenuItem value=""><em>All Months</em></MenuItem>
@@ -91,8 +133,8 @@ const Fees = () => {
                             </Select>
                         </FormControl>
                     </Grid>
-                    <Grid item xs={12} sm={3}>
-                        <FormControl fullWidth>
+                    <Grid item xs={12} sm={6} md={3}>
+                        <FormControl fullWidth sx={{ minWidth: 180 }}>
                             <InputLabel>Year</InputLabel>
                             <Select value={selectedYear} label="Year" onChange={e => setSelectedYear(e.target.value)}>
                                 {[...Array(5)].map((_, i) => <MenuItem key={i} value={new Date().getFullYear() - i}>{new Date().getFullYear() - i}</MenuItem>)}
@@ -102,39 +144,92 @@ const Fees = () => {
                 </Grid>
             </Paper>
 
-            {/* Fees Table */}
-            <TableContainer component={Paper}>
-                <Table>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell>Student</TableCell>
-                            <TableCell>Class</TableCell>
-                            <TableCell>Period</TableCell>
-                            <TableCell>Status</TableCell>
-                            <TableCell>Amount Due</TableCell>
-                            <TableCell>Amount Paid</TableCell>
-                            <TableCell>Due Date</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {loading ? (
-                            <TableRow><TableCell colSpan={7} align="center"><CircularProgress /></TableCell></TableRow>
-                        ) : (
-                            fees.map(fee => (
-                                <TableRow key={fee._id}>
-                                    <TableCell>{fee.enrollment?.student?.name || 'N/A'}</TableCell>
-                                    <TableCell>{fee.enrollment?.class?.name || 'N/A'}</TableCell>
-                                    <TableCell>{fee.period.month}/{fee.period.year}</TableCell>
-                                    <TableCell>{fee.status}</TableCell>
-                                    <TableCell>INR {fee.amount}</TableCell>
-                                    <TableCell>INR {fee.amountPaid}</TableCell>
-                                    <TableCell>{new Date(fee.dueDate).toLocaleDateString()}</TableCell>
-                                </TableRow>
-                            ))
-                        )}
-                    </TableBody>
-                </Table>
-            </TableContainer>
+
+
+            {/* --- UPDATED: Fees Display using Accordion --- */}
+            {loading ? (
+                <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}><CircularProgress /></Box>
+            ) : (
+                Object.keys(feesByClass).map(className => (
+                    <Accordion key={className} defaultExpanded>
+                        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                            <Typography variant="h6">{className}</Typography>
+                        </AccordionSummary>
+                        <AccordionDetails>
+                            <TableContainer component={Paper} variant="outlined">
+                                <Table >
+
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell>Student</TableCell>
+                                            <TableCell>Period</TableCell>
+                                            <TableCell>Status</TableCell>
+                                            <TableCell>Amount Due</TableCell>
+                                            <TableCell>Amount Paid</TableCell>
+                                            <TableCell>Due Date</TableCell>
+                                            <TableCell>Action</TableCell>
+
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {feesByClass[className].map(fee => (
+                                            <TableRow key={fee._id}>
+                                                <TableCell>{fee.enrollment?.student?.name || 'N/A'}</TableCell>
+                                                {/* <TableCell>{fee.period.month}/{fee.period.year}</TableCell> */}
+                                                <TableCell>
+                                                    {new Date(fee.period.year, fee.period.month - 1).toLocaleString('default', { month: 'long' })} {fee.period.year}
+                                                </TableCell>
+                                                <TableCell>{fee.status}</TableCell>
+                                                <TableCell>₹{fee.amount}</TableCell>
+                                                <TableCell>₹{fee.amountPaid}</TableCell>
+                                                {/* <TableCell>{new Date(fee.dueDate).toLocaleDateString()}</TableCell> */}
+                                                <TableCell>
+                                                    {new Date(fee.dueDate).toLocaleDateString('default', { year: 'numeric', month: 'long', day: 'numeric' })}
+                                                </TableCell>
+                                                <TableCell >
+                                                    {fee.status !== 'paid' && (
+                                                        <Button size="small" variant="outlined" onClick={() => openPaymentDialog(fee)}>
+                                                            Pay
+                                                        </Button>
+                                                    )}
+                                                </TableCell>
+
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
+                        </AccordionDetails>
+                    </Accordion>
+                ))
+            )}
+
+            {/* --- NEW: Payment Dialog --- */}
+            <Dialog open={paymentDialogOpen} onClose={handleClosePaymentDialog}>
+                <DialogTitle>Record Payment</DialogTitle>
+                <DialogContent>
+                    <Typography gutterBottom>
+                        For: **{selectedFee?.enrollment?.student?.name}**
+                    </Typography>
+                    <Typography color="text.secondary" gutterBottom>
+                        Remaining Due: ₹{selectedFee && (selectedFee.amount - selectedFee.amountPaid)}
+                    </Typography>
+                    <TextField
+                        autoFocus
+                        margin="dense"
+                        label="Amount to Pay"
+                        type="number"
+                        fullWidth
+                        variant="standard"
+                        value={amountToPay}
+                        onChange={(e) => setAmountToPay(e.target.value)}
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleClosePaymentDialog}>Cancel</Button>
+                    <Button onClick={handleRecordPayment}>Record Payment</Button>
+                </DialogActions>
+            </Dialog>
         </Box>
     );
 };
