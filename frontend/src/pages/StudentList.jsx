@@ -128,9 +128,8 @@ const StudentList = () => {
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
         <Typography variant="h4" className="page-heading">All Students</Typography>
         <Button
-          variant="contained"
-          color="primary"
-          onClick={() => navigate('/create-student')}
+          className="button-primary"
+          onClick={() => navigate('/students/new')}
         >
           New Student
         </Button>
