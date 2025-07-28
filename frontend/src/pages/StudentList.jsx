@@ -118,7 +118,7 @@ const StudentList = () => {
           className="button-primary"
           onClick={() => navigate('/students/new')}
         >
-          + Add New Student
+          New Student
         </Button>
       </Box>
 
@@ -145,10 +145,10 @@ const StudentList = () => {
         <Table className='student-table' sx={{ marginTop: '2rem' }}>
           <TableHead>
             <TableRow>
-              <TableCell className='student-table-row-header'>Name</TableCell>
-              <TableCell className='student-table-row-header'>Email</TableCell>
-              <TableCell className='student-table-row-header'>Parent</TableCell>
-              <TableCell className='student-table-row-header' align="right">Actions</TableCell>
+              <TableCell className="table-header-cell">Name</TableCell>
+              <TableCell className="table-header-cell">Email</TableCell>
+              <TableCell className="table-header-cell">Parent</TableCell>
+              <TableCell className="table-header-cell" align="right">Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -156,7 +156,7 @@ const StudentList = () => {
             {/* Use the 'filteredStudents' array here instead of 'students' */}
             {filteredStudents.map((stu) => (
               <TableRow key={stu._id}>
-                <TableCell className='student-table-name'>{stu.name}</TableCell>
+                <TableCell className='table-body-cell'>{stu.name}</TableCell>
                 {/* <TableCell className='student-table-name'> */}
                   {/* MAKE THE NAME A CLICKABLE LINK */}
                   {/* <Link */}
@@ -167,8 +167,8 @@ const StudentList = () => {
                     {/* {stu.name} */}
                   {/* </Link> */}
                 {/* // </TableCell> */}
-                <TableCell className='student-table-email'>{stu.email || '—'}</TableCell>
-                <TableCell className='student-table-parent-email'>{stu.parentInfo.email}</TableCell>
+                <TableCell className='table-body-cell'>{stu.email || '—'}</TableCell>
+                <TableCell className='table-body-cell'>{stu.parentInfo.email}</TableCell>
                 <TableCell align="right">
                   <Button className='student-table-actions'
                     size="small"

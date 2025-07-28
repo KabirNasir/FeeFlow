@@ -161,32 +161,32 @@ const Fees = () => {
 
                                     <TableHead>
                                         <TableRow>
-                                            <TableCell>Student</TableCell>
-                                            <TableCell>Period</TableCell>
-                                            <TableCell>Status</TableCell>
-                                            <TableCell>Amount Due</TableCell>
-                                            <TableCell>Amount Paid</TableCell>
-                                            <TableCell>Due Date</TableCell>
-                                            <TableCell>Action</TableCell>
+                                            <TableCell className="table-header-cell">Student</TableCell>
+                                            <TableCell className="table-header-cell">Period</TableCell>
+                                            <TableCell className="table-header-cell">Status</TableCell>
+                                            <TableCell className="table-header-cell">Amount Due</TableCell>
+                                            <TableCell className="table-header-cell">Amount Paid</TableCell>
+                                            <TableCell className="table-header-cell">Due Date</TableCell>
+                                            <TableCell className="table-header-cell" align="right">Actions</TableCell>
 
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
                                         {feesByClass[className].map(fee => (
                                             <TableRow key={fee._id}>
-                                                <TableCell>{fee.enrollment?.student?.name || 'N/A'}</TableCell>
+                                                <TableCell className='table-body-cell'>{fee.enrollment?.student?.name || 'N/A'}</TableCell>
                                                 {/* <TableCell>{fee.period.month}/{fee.period.year}</TableCell> */}
-                                                <TableCell>
+                                                <TableCell className='table-body-cell'>
                                                     {new Date(fee.period.year, fee.period.month - 1).toLocaleString('default', { month: 'long' })} {fee.period.year}
                                                 </TableCell>
-                                                <TableCell>{fee.status}</TableCell>
-                                                <TableCell>₹{fee.amount}</TableCell>
-                                                <TableCell>₹{fee.amountPaid}</TableCell>
+                                                <TableCell className='table-body-cell'>{fee.status}</TableCell>
+                                                <TableCell className='table-body-cell'>₹{fee.amount}</TableCell>
+                                                <TableCell className='table-body-cell'>₹{fee.amountPaid}</TableCell>
                                                 {/* <TableCell>{new Date(fee.dueDate).toLocaleDateString()}</TableCell> */}
-                                                <TableCell>
+                                                <TableCell className='table-body-cell'>
                                                     {new Date(fee.dueDate).toLocaleDateString('default', { year: 'numeric', month: 'long', day: 'numeric' })}
                                                 </TableCell>
-                                                <TableCell >
+                                                <TableCell align="right">
                                                     {fee.status !== 'paid' && (
                                                         <Button size="small" variant="outlined" onClick={() => openPaymentDialog(fee)}>
                                                             Pay

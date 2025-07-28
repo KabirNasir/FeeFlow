@@ -95,25 +95,25 @@ const Classes = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell sx={{ fontWeight: 'bold' }}>Class Name</TableCell>
-              <TableCell sx={{ fontWeight: 'bold' }}>Subject</TableCell>
-              <TableCell sx={{ fontWeight: 'bold' }}>Grade</TableCell>
-              <TableCell sx={{ fontWeight: 'bold' }}>Fee Amount</TableCell>
+              <TableCell className="table-header-cell">Class Name</TableCell>
+              <TableCell className="table-header-cell">Subject</TableCell>
+              <TableCell className="table-header-cell">Grade</TableCell>
+              <TableCell className="table-header-cell">Fee Amount</TableCell>
               {/* <TableCell>Class Name</TableCell>
               <TableCell>Subject</TableCell>
               <TableCell>Grade</TableCell>
               <TableCell>Fee Amount</TableCell> */}
-              <TableCell align="right">Actions</TableCell>
+              <TableCell className="table-header-cell"  align="right">Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {filteredClasses.map((cls) => (
               <TableRow key={cls._id}>
-                <TableCell>{cls.name}</TableCell>
-                <TableCell>{cls.subject}</TableCell>
-                <TableCell>{cls.grade}</TableCell>
-                <TableCell>INR {cls.fees?.amount || 'N/A'}</TableCell>
-                <TableCell align="right">
+                <TableCell className='table-body-cell'>{cls.name}</TableCell>
+                <TableCell className='table-body-cell'>{cls.subject}</TableCell>
+                <TableCell className='table-body-cell'>{cls.grade}</TableCell>
+                <TableCell className='table-body-cell'>INR {cls.fees?.amount || 'N/A'}</TableCell>
+                <TableCell align="right"> 
                   <Button
                     size="medium"
                     variant="soft"
