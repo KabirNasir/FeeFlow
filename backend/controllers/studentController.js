@@ -19,15 +19,15 @@ exports.createStudent = async (req, res) => {
     }
 
     // Optional: Prevent duplicate student by email
-    if (email) {
-      const existing = await Student.findOne({ email });
-      if (existing) {
-        return res.status(400).json({
-          success: false,
-          message: 'Student with this email already exists'
-        });
-      }
-    }
+    // if (email) {
+    //   const existing = await Student.findOne({ email });
+    //   if (existing) {
+    //     return res.status(400).json({
+    //       success: false,
+    //       message: 'Student with this email already exists'
+    //     });
+    //   }
+    // }
 
     const student = await Student.create({
       name,
